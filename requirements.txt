@@ -4,4 +4,5 @@ pyxdg
 torf-cli
 json
 pathlib
+opencv-python
 binaries\torf-cli-master
