@@ -1,0 +1,7 @@
+tkinter
+torf
+pyxdg
+torf-cli
+json
+pathlib
+binaries\torf-cli-master
