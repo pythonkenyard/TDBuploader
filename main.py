@@ -51,3 +51,6 @@ print(startdigit)
 torrentname = folloc[startdigit:len(folloc)]
 print(str(torrentname))
 os.system(r'torf "'+str(folloc)+'" -t '+cfg.tracker+ ' -M --private --out "'+str(cwd)+'/torrents'+str(torrentname)+'.torrent"')
+mediainfoutput = open(cwd+'/torrents/'+str(torrentname)+'.txt',"w")
+mediainfoutput.write(mediainfo)
+print("torrent and mediainfo written to /torrents as " +torrentname)
