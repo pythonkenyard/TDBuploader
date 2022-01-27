@@ -1,3 +1,3 @@
 upload_url = ""
-tracker_url = ""
-initialsetup= ""
+tracker = "addme"
+initialsetup= "furst"
