@@ -1,0 +1,92 @@
+2021-02-20 3.4.0
+  - New option: --threads
+
+
+2020-08-11 3.3.0
+  - Always display which tier a tracker belongs to unless the whole torrent has
+    only one tracker.
+  - New options: --include and --include-regex include files that match exclude
+    patterns.
+  - Bugfix: --exclude-regex was ignored when editing an existing torrent.
+
+
+2020-06-21 3.2.0
+  - Support for reading magnet URIs was added, e.g. "torf -i 'magnet:...' -o
+    foo.torrent".  The missing information is downloaded from the parameters
+    "xs", "as", "ws" and "tr", if possible.  Support for DHT and UDP trackers is
+    not implemented.
+  - The --in option now supports "-" as a parameter to read a torrent or magnet
+    URI from stdin.
+  - When verifying torrent content, a trailing slash in PATH automatically
+    appends the torrent's name to PATH.  For example, "torf -i foo.torrent
+    path/to/foo" is identical to "torf -i foo.torrent path/to/" while "torf -i
+    foo.torrent path/to" looks for foo.torrent's files in "path/to".
+  - --in, --out and --name are now illegal in config files.
+
+
+2020-04-07 3.1.1
+  - Bugfix: Allow all torf 3.*.* version, not just 3.0.0.
+
+
+2020-04-02 3.1.0
+  - Huge performance increase due to multithreading.
+  - Verify a torrent's content: torf -i content.torrent path/to/content
+  - Progress is now reported in two lines with more information.
+  - New option: --metainfo prints a JSON object of the torrent's metainfo.
+  - New option: --json prints a JSON object of the regular output.
+  - New option: --verbose shows file sizes in plain bytes, verifies file
+    content more thoroughly, etc.
+  - New option: --exclude-regex excludes files that match a regular expression.
+  - --exclude and --exclude-regex patterns are now matched against the complete
+    relative path within the torrent instead of individual path segments.
+  - Support for multiple tiers of announce URLs when creating torrents.
+  - Exit codes have changed and are now properly documented in the man page.
+  - Bugfix: --max-piece-size can now set piece sizes larger than 16 MiB.
+
+
+2019-06-03 3.0.1
+  - Fixed minor bug that caused trailing zeros to be removed from numbers, e.g.
+    "10 GiB" was displayed as "1 GiB"
+
+
+2019-04-04 3.0.0
+  - Use proper version number scheme.
+  - Fixed "--exclude requires PATH" error when editing a torrent with global
+    "exclude" options in the config file.
+  - New options: --source to add a "source" field to the torrent and --nosource
+    to remove it from an existing torrent.
+  - New option: --max-piece-size optionally limits the piece size.
+
+
+2018-06-19 2.0
+  - Support for default arguments and special profiles in ~/.config/torf/config
+    or any file specified by --config or -f.
+  - Use \e[0E instead of \e[1` to clear the line when showing progress.
+    (marcelpaulo)
+  - If output is not a TTY, "Progress ..." lines are not cleared but followed by
+    a newline character and the rest of the line is parsable like the other
+    output.
+  - Long or multiline torrent file comments are now properly indented.
+  - --exclude patterns are now matched against each directory/file name in a
+    path instead of just the file name.
+  - Torrent file and magnet link are now both created by default, and the
+    --magnet option was replaced by --nomagnet and --notorrent.
+  - In the output 'Magnet URI' was shortened to 'Magnet', 'Torrent File' was
+    shortened to 'Torrent' and 'Creation Date' was shortened to 'Created'.
+  - The default for --date was changed from 'today' to 'now'.
+
+
+2018-04-08 1.1
+  - Major rewrite with lots of tests that should fix the most obvious bugs
+  - The options --source and --nosource have been removed
+  - The option --nocreator has been added
+  - Output is now easier to parse when stdout is not a TTY (e.g. when piping to
+    grep, cut, awk, etc)
+
+
+2018-02-01 1.0
+  Final release
+
+
+2018-01-15 1.0a1
+  Initial release

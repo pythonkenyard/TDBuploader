@@ -1,0 +1,381 @@
+= TORF(1)
+
+
+== NAME
+
+torf - command line tool to create, display and edit torrents
+
+
+== SYNOPSIS
+
+*torf* _PATH_ [_OPTIONS_] [*-o* _TORRENT_] +
+*torf* *-i* _INPUT_ +
+*torf* *-i* _INPUT_ [_OPTIONS_] *-o* _TORRENT_ +
+*torf* *-i* _TORRENT_ _PATH_ +
+
+
+== DESCRIPTION
+
+torf can create, display and edit torrent files and verify the integrity of a
+torrent's content.
+
+* *torf* _PATH_ [_OPTIONS_] [*-o* _TORRENT_] +
+Create the torrent file _TORRENT_ from the file or directory _PATH_.
+
+* *torf* *-i* _INPUT_ +
+Display information stored in the torrent file or magnet URI _INPUT_.
+
+* *torf* *-i* _INPUT_ [_OPTIONS_] *-o* _TORRENT_ +
+Edit the existing torrent file or magnet URI _INPUT_ (e.g. to fix a typo) and
+create the new torrent file _TORRENT_.
++
+WARNING: Editing a torrent can change its hash, depending on what is changed,
+         which essentially makes it a new torrent.  See OPTIONS to find out
+         whether a certain option will change the hash.
+
+* *torf* *-i* _TORRENT_ _PATH_ +
+Verify that the content in _PATH_ matches the metadata in the torrent file
+_TORRENT_.
++
+If _PATH_ ends with a path separator (e.g. "/"), the name of the torrent (as
+specified in _TORRENT_) is appended.
+
+
+== OPTIONS
+
+Options that start with *--no* take precedence.
+
+_PATH_::
+The path to the torrent's content.
++
+When verifying data, the torrent's name is appended.
+
+*--exclude*, *-e* _PATTERN_::
+Exclude files from _PATH_ that match the glob pattern _PATTERN_.  This option
+may be given multiple times.  See *EXCLUDING FILES*.
+
+*--exclude-regex*, *-er* _PATTERN_::
+Exclude files from _PATH_ that match the regular expression _PATTERN_.  This
+option may be given multiple times.  See *EXCLUDING FILES*.
+
+*--include* _PATTERN_::
+Include files from _PATH_ that match the glob pattern _PATTERN_ even if they
+match any *--exclude* or *--exclude-regex* patterns.  This option may be given
+multiple times.  See *EXCLUDING FILES*.
+
+*--include-regex*, *-ir* _PATTERN_::
+Include files from _PATH_ that match the regular expression _PATTERN_ even if
+they match any *--exclude* or *--exclude-regex* patterns.  This option may be
+given multiple times.  See *EXCLUDING FILES*.
+
+*--in*, *-i* _INPUT_::
+Read metainfo from the torrent file or magnet URI _INPUT_.  If _INPUT_ is "-"
+and does not exist, the torrent data or magnet URI is read from stdin.
+
+*--out*, *-o* _TORRENT_::
+Write to torrent file _TORRENT_. +
+Default: __NAME__**.torrent**
+
+*--notorrent*, *-N*::
+Do not create a torrent file.
+
+*--nomagnet*, *-M*::
+Do not create a magnet URI.
+
+*--name*, *-n* _NAME_::
+Destination file or directory when the torrent is downloaded. +
+Default: Basename of _PATH_
++
+WARNING: When editing, this option changes the info hash and creates a new
+torrent.
+
+*--tracker*, *-t* _URL_::
+List of comma-separated announce URLs.  This option may be given multiple times
+for multiple tiers.  Clients try all URLs from one tier in random order before
+moving on to the next tier.
+
+*--notracker*, *-T*::
+Remove trackers from an existing torrent.
+
+*--webseed*, *-w* _URL_::
+A webseed URL (BEP19).  This option may be given multiple times.
+
+*--nowebseed*, *-W*::
+Remove webseeds from an existing torrent.
+
+*--private*, *-p*::
+Tell clients to use tracker(s) exclusively for peer discovery.
++
+WARNING: When editing, this option changes the info hash and creates a new
+torrent.
+
+*--noprivate*, *-P*::
+Allow clients to use DHT and PEX for peer discovery.
++
+WARNING: When editing, this option changes the info hash and creates a new
+torrent.
+
+*--comment*, *-c* _COMMENT_::
+A comment that is stored in the torrent file.
+
+*--nocomment*, *-C*::
+Remove the comment from an existing torrent.
+
+*--date*, *-d* _DATE_::
+The creation date in the format __YYYY__**-**__MM__**-**__DD__[
+__HH__**:**__MM__[**:**__SS__]], *now* for the current time or *today* for today
+at midnight. +
+Default: *now*
+
+*--nodate*, *-D*::
+Remove the creation date from an existing torrent.
+
+*--source*, *-s* _SOURCE_::
+Add a "`source`" field to the torrent file.  This is usually used to make the
+torrent's info hash unique per tracker.
++
+WARNING: When editing, this option changes the info hash and creates a new
+torrent.
+
+*--nosource*, *-S*::
+Remove the "`source`" field from an existing torrent.
++
+WARNING: When editing, this option changes the info hash and creates a new
+torrent.
+
+*--xseed*, *-x*::
+Randomize the info hash to help with cross-seeding.  This simply adds an
+*entropy* field to the *info* section of the metainfo and sets it to a random
+integer.
++
+WARNING: When editing, this option changes the info hash and creates a new
+torrent.
+
+*--noxseed*, *-X*::
+De-randomize a previously randomized info hash of an existing torrent.  This
+removes the *entropy* field from the *info* section of the metainfo.
++
+WARNING: When editing, this option changes the info hash and creates a new
+torrent.
+
+*--max-piece-size* _SIZE_::
+The maximum piece size when creating a torrent.  SIZE is multiplied by 1 MiB
+(1048576 bytes).  The resulting number must be a power of two (2, 4, 8, 16,
+etc.).  Numbers smaller than 1 are allowed, e.g. "`0.25`" sets the maximum piece
+size to 256 KiB.
+
+*--nocreator*, *-R*::
+Remove the name of the application that created the torrent from an existing
+torrent.
+
+*--yes*, *-y*::
+Answer all yes/no prompts with "`yes`".  At the moment, all this does is
+overwrite _TORRENT_ without asking.
+
+*--config*, *-f* _FILE_::
+Read command line arguments from configuration FILE.  See *CONFIGURATION
+FILE*. +
+Default: __$XDG_CONFIG_HOME__**/torf/config** where _$XDG_CONFIG_HOME_ defaults
+to *~/.config*
+
+*--noconfig*, *-F*::
+Do not use any configuration file.
+
+*--profile*, *-z* _PROFILE_::
+Use predefined arguments specified in _PROFILE_.  This option may be given
+multiple times.  See *CONFIGURATION FILE*.
+
+*--verbose*, *-v*::
+Produce more output or be more thorough.  This option may be given multiple
+times.
++
+* Display bytes with and without unit prefix, e.g. "1.38 MiB / 1,448,576 B".
+* When verifying, corrupt files are always read to the end instead of skipping
+  them after the first corrupt piece.
+* Any other effects are explained in the relevant arguments' documentation.
+
+*--json*, *-j*::
+Print information and errors as a JSON object.  Progress is not reported.
+
+*--metainfo*, *-m*::
+Print the torrent's metainfo as a JSON object.  Byte strings (e.g. "pieces" in
+the "info" section) are encoded in Base64.  Progress is not reported.  Errors
+are reported normally on stderr.
++
+Unless *--verbose* is given, any non-standard fields are excluded and metainfo
+that doesn't represent a valid torrent results in an error.  Unless *--verbose*
+is given twice, the "pieces" field in the "info" section is excluded.
+
+*--human*, *-u*::
+Display information in human-readable output even if stdout is not a TTY.  See
+*PIPING OUTPUT*.
+
+*--nohuman*, *-U*::
+Display information in machine-readable output even if stdout is a TTY.  See
+*PIPING OUTPUT*.
+
+*--help*, *-h*::
+Display a short help text and exit.
+
+*--version*, *-V*::
+Display the version number and exit.
+
+
+== EXAMPLES
+
+Create "`foo.torrent`" with two trackers and don't store the creation date:
+
+    $ torf path/to/foo \
+           -t http://example.org:6881/announce \
+           -t http://example.com:6881/announce \
+           --nodate
+
+Read "`foo.torrent`" and print its metainfo:
+
+    $ torf -i foo.torrent
+
+Print only the name:
+
+    $ torf -i foo.torrent | grep '^Name' | cut -f2
+
+Change the comment and remove the date from "`foo.torrent`", write the result to
+"`bar.torrent`":
+
+    $ torf -i foo.torrent -c 'New comment' -D -o bar.torrent
+
+Check if "`path/to/foo`" contains valid data as specified in "`bar.torrent`":
+
+    $ torf -i bar.torrent path/to/foo
+
+
+== EXCLUDING FILES
+
+The *--exclude* option takes a glob pattern that is matched against each file
+path beneath _PATH_.  Files that match are not included in the torrent.
+Matching is case-insensitive.
+
+The *--exclude-regex* option works like *--exclude* but it takes a regular
+expression pattern and it does case-sensitive matching.
+
+The *--include* and *--include-regex* options are applied like their excluding
+counterparts, but any matching files are included even if they match any exclude
+patterns.
+
+File paths start with the torrent's name (usually the last segment of _PATH_),
+e.g. if _PATH_ is "`/home/foo/bar`", each file path starts with "`bar/`"
+
+Empty directories and empty files are automatically excluded.
+
+Regular expressions should be Perl-compatible for simple patterns.  See
+https://docs.python.org/3/library/re.html#regular-expression-syntax for the
+complete documentation.
+
+Glob patterns support these wildcard characters:
+
+[%autowidth, frame=none, grid=none, cols=">,<"]
+|===
+|        * |matches everything
+|        ? |matches any single character
+|  [_SEQ_] |matches any character in _SEQ_
+| [!_SEQ_] |matches any character not in _SEQ_
+|===
+
+
+== CONFIGURATION FILE
+
+A configuration file lists long-form command line options with all leading "`-`"
+characters removed.  If an option takes a parameter, "`=`" is used as a
+separator.  Spaces before and after the "`=`" are ignored.  The parameter may be
+quoted with single or double quotes to preserve leading and/or trailing spaces.
+Lines that start with "`#`" are ignored.
+
+All of the options listed in the *OPTIONS* section are allowed except for
+_PATH_, *in*, *out*, *name*, *config*, *noconfig*, *profile*, *help*, *version*.
+
+There is rudimental support for environment variables in parameters. As usual,
+"`$FOO`" or "`${FOO}`" will be replaced with the value of the variable *FOO*,
+"`$`" is escaped with "`\`" (backslash) and a literal "`\`" is represented by
+two "`\`".  More complex string manipulation syntax (e.g. "`${FOO:3}`") is not
+supported.
+
+=== Profiles
+
+A profile is a set of options bound to a name that is given to the *--profile*
+option.  In the configuration file it is specified as "`[_PROFILE NAME_]`"
+followed by a list of options.  Profiles inherit any options specified globally
+at the top of the file, but they can overload them.
+
+=== Example
+
+This is an example configuration file with some global custom defaults and the
+two profiles "`foo`" and "`bar`":
+
+----
+yes
+nodate
+exclude = *.txt
+
+[foo]
+tracker = https://foo1/announce
+tracker = https://foo2/announce
+private
+
+[bar]
+tracker = https://bar/announce
+comment = I love bar.
+----
+
+With this configuration file, these arguments are always used:
+
+    --yes
+    --nodate
+    --exclude '*.txt'
+
+If "`--profile foo`" is given, it also adds these arguments:
+
+    --tracker https://foo1/announce
+    --tracker https://foo2/announce
+    --private
+
+If "`--profile bar`" is given, it also adds these arguments:
+
+    --tracker https://bar/announce
+    --comment 'I love bar.'
+
+
+== PIPING OUTPUT
+
+If stdout is not a TTY (i.e. when output is piped) or if the *--nohuman* option
+is provided, the output format is different:
+
+- Leading spaces are removed from each line.
+
+- The delimiter between label and value as well as between multiple values
+  (files, trackers, etc) is a tab character ("`\t`" or ASCII code 0x9).
+  Trackers are flattened into a one-dimensional list.
+
+- Numbers are not formatted (UNIX timestamps for times, seconds for time deltas,
+  raw bytes for sizes, etc).
+
+
+== EXIT CODES
+
+1:: Anything not specified below
+
+2:: Unknown or invalid command line arguments
+
+3:: Error while reading or parsing the config file
+
+4:: Error while reading a torrent file or content
+
+5:: Error while writing a torrent file
+
+6:: Error while verifying a torrent's content
+
+128:: Aborted by SIGINT (typically Ctrl-c was pressed)
+
+
+== REPORTING BUGS
+
+Bug reports, feature requests and poems about hedgehogs are welcome on the
+https://github.com/rndusr/torf-cli/issues[issue tracker].
