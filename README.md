@@ -1,7 +1,7 @@
 # TDBuploader
 Script for autoupload to TDB
 
-To do:
+Done
 1. File Location selection
 2. File parser
 3. Scan mp4 or mkv file using MediaInfo CLI  
@@ -9,8 +9,11 @@ To do:
 5. Needs to be able to take argument for user announce tracker. Can link it with (4)? or manual?
 6. Torrent piece size. Needs to take total file size and divide by 1,000.
 7. Save torrent to set location.
-8. Automate the torrent posting step.
-9. Take userinput for upload location on tdb   
+
+To do:
+8.Need to improve torrent naming?
+9. Automate the torrent uploading to tdb step.
+10. Take userinput for upload location on tdb in initial setup. (can url be posted in the github directly?)
 
 General requirements
 Create wiki/readme
