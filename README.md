@@ -1,5 +1,5 @@
 # TDBuploader
-Script for autoupload to TDB
+Script for creation of torrents, with addition of the tracker, exporting of mediainfo and 5 screenshots
 
 # Instructions:
 Download https://github.com/pythonkenyard/TDBuploader/archive/refs/heads/main.zip
