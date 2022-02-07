@@ -25,65 +25,151 @@ if cfg.initialsetup == "furst":
 else:
     pass
 
-folloc = tdb.selectfolder()
-print(str(folloc))
-files = os.listdir(folloc)
-if len(files) <1:
-    print("please select a folder with files")
-else:
-    print("files to be uploaded:")
-    for file in files:
-        print(file )
 
-if files[0].endswith(('.mp4', '.avi',"mkv")) ==True:
-    mediafile=files[0]
-#todo add support for morefiles
+def createtorrent(folloc):
+    folloc = folloc
+    
+    if selection == "1" or selection == "4":
+    
+        mediainfo = os.popen(r"binaries\mediainfo\MediaInfo.exe " +'"'+folloc+'"').read()
 
-mediainfo = os.popen(r"binaries\mediainfo\MediaInfo.exe " +'"'+folloc+"/"+mediafile+'"').read()
+        print("grabbed media info")
+        #print("media info\n"+mediainfo)
+        cwd = os.getcwd()
 
-print("grabbed media info")
-#print("media info\n"+mediainfo)
-cwd = os.getcwd()
 
-startdigit = folloc.rfind("/", 0, len(folloc))
-print(startdigit)
-torrentname = folloc[startdigit:len(folloc)]
-print(str(torrentname))
-os.system(r'torf "'+str(folloc)+'" -t '+cfg.tracker+ ' -M --private --out "'+str(cwd)+'/torrents'+str(torrentname)+'.torrent"')
-mediainfoutput = open(cwd+'/torrents/'+str(torrentname)+'.txt',"w")
-mediainfoutput.write(mediainfo)
-print("torrent and mediainfo written to /torrents as " +torrentname)
+        startdigit = folloc.rfind("/", 0, len(folloc))
+        print(startdigit)
+        torrentname = folloc[startdigit:len(folloc)]
+        print(str(torrentname))
+        newdir= cwd+"\\torrents\\"
+        print(newdir)
+        newdir = newdir+ str(torrentname)
+        print(str(newdir))
+        os.mkdir(newdir)
+        os.system(r'torf "'+str(folloc)+'" -t '+cfg.tracker+ ' -M --private --out "'+str(newdir)+str(torrentname)+'.torrent"')
+        mediainfoutput = open(newdir+str(torrentname)+'.txt',"w")
+        mediainfoutput.write(mediainfo)
+        print("torrent and mediainfo written to "+newdir+" as " +torrentname+".torrent")
 
-cam = cv2.VideoCapture(folloc+"/"+mediafile) 
+        cam = cv2.VideoCapture(folloc) 
 
-print("capturing screens")
-# frame
-frame_number = 0
-screens =0
+        print("capturing screens")
+        # frame
+        frame_number = 0
+        screens =0
 
-while (True):
-    cam.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
-    ret, frame = cam.read()
+        while (True):
+            cam.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
+            ret, frame = cam.read()
 
-    if ret:
-        if screens ==5:
-            break
-        else:
-            frame_number=frame_number+500
-            # if video is still left continue creating images
-            name = './torrents' + str(torrentname)+str(frame_number) + '.jpg'
-            print('Creating...' + name)
+            if ret:
+                if screens ==5:
+                    break
+                else:
+                    frame_number=frame_number+500
+                    # if video is still left continue creating images
+                    name = './torrents/'+str(torrentname)+"/" + str(torrentname)+str(frame_number) + '.jpg'
+                    print('Creating...' + name)
 
-            # writing the extracted images
-            cv2.imwrite(name, frame)
+                    # writing the extracted images
+                    cv2.imwrite(name, frame)
 
-            # increasing counter so that it will
-            # show how many frames are created
-            frame_number += 2500
-            screens +=1
+                    # increasing counter so that it will
+                    # show how many frames are created
+                    frame_number += 2500
+                    screens +=1
+            else:
+                break
+
+        # Release all space and windows once done
+        cam.release()
+        cv2.destroyAllWindows()
+
+    
     else:
-        break
+        if files[0].endswith(('.mp4', '.avi',"mkv")) ==True:
+            mediafile=files[0]
+    #todo add support for morefiles
+        mediainfo = os.popen(r"binaries\mediainfo\MediaInfo.exe " +'"'+folloc+"/"+mediafile+'"').read()
 
-# Release all space and windows once done
-cam.release()
-cv2.destroyAllWindows()
+        print("grabbed media info")
+        #print("media info\n"+mediainfo)
+        cwd = os.getcwd()
+
+
+        startdigit = folloc.rfind("/", 0, len(folloc))
+        print(startdigit)
+        torrentname = folloc[startdigit:len(folloc)]
+        print(str(torrentname))
+        newdir= cwd+"\\torrents\\"
+        print(newdir)
+        newdir = newdir+ str(torrentname)
+        print(str(newdir))
+        os.mkdir(newdir)
+        os.system(r'torf "'+str(folloc)+'" -t '+cfg.tracker+ ' -M --private --out "'+str(newdir)+str(torrentname)+'.torrent"')
+        mediainfoutput = open(newdir+str(torrentname)+'.txt',"w")
+        mediainfoutput.write(mediainfo)
+        print("torrent and mediainfo written to "+newdir+" as " +torrentname+".torrent")
+
+        cam = cv2.VideoCapture(folloc+"/"+mediafile) 
+
+        print("capturing screens")
+        # frame
+        frame_number = 0
+        screens =0
+
+        while (True):
+            cam.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
+            ret, frame = cam.read()
+
+            if ret:
+                if screens ==5:
+                    break
+                else:
+                    frame_number=frame_number+500
+                    # if video is still left continue creating images
+                    name = './torrents/'+str(torrentname)+"/" + str(torrentname)+str(frame_number) + '.jpg'
+                    print('Creating...' + name)
+
+                    # writing the extracted images
+                    cv2.imwrite(name, frame)
+
+                    # increasing counter so that it will
+                    # show how many frames are created
+                    frame_number += 2500
+                    screens +=1
+            else:
+                break
+
+        # Release all space and windows once done
+        cam.release()
+        cv2.destroyAllWindows()
+
+
+folloc, selection = tdb.selectfolder()
+print("Selected location is "+str(folloc))
+if selection == "2" or selection == "4":
+    files = os.listdir(folloc)
+else:
+    print("Single file(s) or folder to be uploaded")
+    files = folloc
+    if selection == "3":
+        print("Content of folder\n"+files +" is "+ os.listdir(folloc))
+    else:
+        print("")
+
+if len(files) <1:
+    print("please select a folder with files or selection option 1 and select a single file")
+    exit()
+else:
+    print("files or folders to be uploaded:")
+    for file in files:
+        print(file)
+
+if int(selection) > 2:
+    for file in files:
+        location = folloc+"/"+file
+        createtorrent(location)
+else:
+    createtorrent(folloc)
