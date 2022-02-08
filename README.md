@@ -3,25 +3,25 @@ Script for creation of torrents, for your tracker, which also creates text file 
 Supports mass creation of torrents from folders or a folder of files.  
 
 # Instructions:
-On windows:  
+## On windows:  
 Download https://github.com/pythonkenyard/TDBuploader/archive/refs/heads/main.zip  
 Unzip and open the folder you created.  
 in the explorer bar at the top of folder type "powershell" or "cmd" to open a powershell or cmd window for this folder    
 If you have already installed pyton and pip skip to Install python requirements.    
-###Installing Python  
+### Installing Python  
 type python which should bring you to the windows store for pyton install. or download from here  
-**Note in the install windows ensure to tick the add python to environmental path option. If you miss this, reinstall and tick it**
+** Note in the install windows ensure to tick the add python to environmental path option. If you miss this, reinstall and tick it**
 64 bit - https://www.python.org/ftp/python/3.10.2/python-3.10.2-amd64.exe  
 32 bit - https://www.python.org/ftp/python/3.10.2/python-3.10.2.exe
-###Installing Pip  
+### Installing Pip  
 in your cmd window type  
 1. curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py  
 2. python get-pip.py
 
-###Install python requirements
+### Install python requirements
 pip install -r requirements.txt  
   
-##Running  
+### Running  
 you need to open cmd/powershell window in the folder or cd to the location then:    
 python main.py  
 
