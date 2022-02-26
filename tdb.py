@@ -30,7 +30,7 @@ def runsetup(cfg):
 (2)Remove a tracker\n \
 (3)Edit config of a tracker (In development)\n \
 (4)Add additional websites to sourcelist (In development)\n \
-(5)Return to main menu.\n \
+(5)Return to MAIN MENU.\n \
 (6)List trackers.\n \
 -->Selection: ")
         """NOTE 5 REQUIRES TO REMAIN FIXED POSITION DUE TO RETURN AS SELECTION"""
@@ -49,14 +49,17 @@ def runsetup(cfg):
             autoupload = False
             screenshots = input("How many screenshots are required: ")
             trackerdata = {"announce": announce, "autotorrent" : autotorrent, "autorename" : autorename, "autoupload" : autoupload, "screenshots" : screenshots}
-            cfg["tracker"][trackername] = trackerdata
-            print(str(cfg))
+            if cfg["tracker"] is None:
+                cfg["tracker"] = {trackername : trackerdata}
+            else:
+                cfg["tracker"][trackername] = trackerdata
+            print("Added. Current trackers "+str(list(cfg["tracker"].keys())))
             with open('config/config.yaml','w') as yamlfile:
                 yaml.safe_dump(cfg, yamlfile)
             print("Tracker info updated")
         elif setupselection == "2":
             print("Possible trackers to remove:"+str(list(cfg["tracker"].keys())))
-            trackername = input("Please name your tracker to delete or exit to quit: ")
+            trackername = input("Please name your tracker to delete or exit to return to settings: ")
             for i in list(cfg["tracker"].keys()):
                 if i == trackername:
                     del cfg["tracker"][i]
@@ -64,7 +67,7 @@ def runsetup(cfg):
             with open('config/config.yaml','w') as yamlfile:
                 yaml.safe_dump(cfg, yamlfile)
         elif setupselection == "6":
-            print("Current trackers "+str(list(cfg["tracker"].keys())))
+            print("\n\nCurrent trackers "+str(list(cfg["tracker"].keys()))+"\n\n")
     return cfg, setupselection
 
 #Launch window
@@ -84,21 +87,21 @@ def selectfolder(selection, cfg):
 (6)Exit.\n \
 -->Selection: ")
 
-        if len(cfg["tracker"]) >1:
-            print("trackers to use" +str(list(cfg["tracker"].keys())))
-        else:
-            print("using tracker " +str(list(cfg["tracker"].keys())))
-        if selection == "1":
+        if len(list(cfg["tracker"].keys())) >0:
+            print("trackers currently in use" +str(list(cfg["tracker"].keys())))
+        if selection == "5":
+            cfg, selection = runsetup(cfg)
+        elif selection == "1":
             folder_selected = filedialog.askopenfilename()
 
         elif selection == "2" or selection =="3" or selection =="4":
             folder_selected = filedialog.askdirectory()
-        elif selection == "5":
-            cfg, selection = runsetup(cfg)
+
         elif selection == "6":
+            print("Exiting.")
             exit()
         else:
-            print("Incorrect selection. Please restart")
+            print("Incorrect selection. Please select 1-6")
             selection = "0"
     return folder_selected, selection, cfg
 
