@@ -9,22 +9,13 @@ from pathlib import Path
 from tdb import *
 from tkinter import *
 
+with open("config/config.yaml", 'r') as stream:
+    cfg = yaml.safe_load(stream)
+#print(str(cfg))
 #initial setup, establish tracker etc..
-if cfg.initialsetup == "furst":
-    print("First time setup requires tracker url.\nPlease copy your announce tracker from https://torrentdb.net/upload\nFormat should be https://reactor.torrentdb.net/announce/XXXXXXX")
-    tracker = input("Input tracker url:")#todo add tracker prompt
-    #todo add upload url prompt?
-    mb.showinfo(title="Initial setup", message="In future this setup will no longer be required.\nYou may now select the FOLDER you wish to create a torrent from.\nNote this prompt wont be provided in future")
-    #todo remove prompt in future
-    #content= open(r"config\config.py","r").read().splitlines()
-    content= Path('config\config.py').read_text()
-    print(str(content))
-    content = content.replace("furst","done")
-    content = content.replace("addme", tracker)
-    
-    writeout = open(r"config\config.py","w")
-    writeout.write(content)
-    writeout.close
+if cfg["tracker"] is None:
+    print("\nFIRST TIME SETUP PLEASE ADD AT LEAST ONE TRACKER\n")
+    runsetup(cfg)
 else:
     pass
 
@@ -38,7 +29,7 @@ except:
 total = 1
 torrentlist=[]
 
-folloc, selection = selectfolder(selection)
+folloc, selection, cfg = selectfolder(selection, cfg)
 
 
 if int(selection) > 1:
