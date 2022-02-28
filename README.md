@@ -22,6 +22,7 @@ in your cmd window type
 pip install -r requirements.txt  
   
 ### Running  
+https://adamtheautomator.com/wp-content/uploads/2021/01/ALT_D_PowerShell.gif
 you need to open cmd/powershell window in the folder or cd to the location then:    
 python main.py  
 
