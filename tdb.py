@@ -194,19 +194,31 @@ class File():
 def createtorrent(folloc, selection):
     folloc = folloc
     selection = selection
+    #If files selected can parse directly, otherwise need to select internal files
     if selection == "1" or selection == "2":
     
         mediainfo = MediaInfo.parse(folloc)
-        cam = cv2.VideoCapture(folloc) 
+        media_info = MediaInfo.parse(folloc, output="", full=False)  #parse media info object in text format
+        try:
+            media_info = media_info.replace("\n","")
+        except:
+            pass
+        
+        cam = cv2.VideoCapture(folloc)
     else:
         onlyfiles = [f for f in listdir(folloc) if isfile(join(folloc, f))]
         target = folloc+"/"+str(onlyfiles[0])
-        print(target)
-        mediainfo = os.popen(r"binaries\mediainfo\MediaInfo.exe " +'"'+target+'"').read()
-        print(str(onlyfiles[0]))
+        #print("file to grab: " +target)
+        mediainfo = MediaInfo.parse(target)
+        media_info = MediaInfo.parse(target, output="", full=False) #parse media info object in text format
+        try:
+            media_info = media_info.replace("\n","")
+        except:
+            pass
+        print("selecting file for media info and screens: "+str(onlyfiles[0]))
         cam = cv2.VideoCapture(folloc+"/"+str(onlyfiles[0])) 
     print("grabbed media info")
-    #print("media info\n"+mediainfo)
+    #print("media info\n"+str(media_info))
 
     ###get audio and video format for naming torrent
     audioformat = get_audio_id(mediainfo)
@@ -238,7 +250,7 @@ def createtorrent(folloc, selection):
 
 
     mediainfoutput = open(cwd+"\\torrents\\aamediainfo/"+str(torrentname)+'.txt',"w")
-    mediainfoutput.write(str(mediainfo))
+    mediainfoutput.write(str(media_info))
     print("torrent and mediainfo written to "+newdir+" as " +torrentname+".torrent")
 
 
