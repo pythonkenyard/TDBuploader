@@ -1,6 +1,7 @@
 # TDBuploader  
 Script for creation of torrents, for your tracker, which also creates text file with mediainfo and 5 screenshots ready for uploading.  
 Supports mass creation of torrents from folders or a folder of files.  
+Note: Autoupload requires chrome support and chromedriver matching your chrome version from here https://chromedriver.chromium.org/downloads
 
 # Instructions:
 ## On windows:  
@@ -40,11 +41,20 @@ torrents are output to the /torrent subfolder.
 4. Pass folder to torf for torrent creation  
 5. Take argument for user announce tracker. Can link it with (4)? or manual?  
 6. Torrent piece size. Needs to take total file size and divide by 1,000. (auto supported by torf)  
-7. Save torrent to /torrents.  
+7. Save torrent to /torrents.
+8. Settings menu to add or remove trackers.
+9. Autoupload is in initial stages
   
 # To do:  
-8. Need to improve torrent naming?  
-9. Automate the torrent uploading to tdb step.  
+8. Need to improve torrent naming.
+9. File recognition needs work.
+10. Add support for tagging uploads (Currently everything is configured to use my release tag for tdb
+11. Season and Episode selection based on file name for tdb
+
+13. Support for upload to BHD
+14. Support for upload to PHD
+
+16. Hashing user/pw
   
   
 # General repository requirements yet to be completed  
