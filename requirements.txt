@@ -4,6 +4,8 @@ pyxdg
 json
 pathlib
 opencv-python
-binaries\torf-cli-master
+selenium
+selenium-wire
 pyaml
 pymediainfo
+git+https://github.com/rndusr/torf-cli.git
