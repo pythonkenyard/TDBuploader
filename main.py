@@ -16,7 +16,7 @@ print(" _______                        _\n \
    | | (_) | |  | | |  __/ | | | ||  __/ |\n \
    |_|\\___/|_|  |_|  \\___|_| |_|\\__\\___|_| ")
 
-print("\nVersion 0.0.4,\n https://github.com/pythonkenyard/TDBuploader ")
+print("\nVersion 2.0.0 beta,\n https://github.com/pythonkenyard/TDBuploader ")
 
 
 with open("config/config.yaml", 'r') as stream:
