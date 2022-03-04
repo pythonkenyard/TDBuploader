@@ -113,26 +113,29 @@ def selectfolder(selection, cfg):
 (5)Enter Setup.\n \
 (6)Exit.\n \
 -->Selection: ")
+        try:
+            if len(list(cfg["tracker"].keys())) >0:
+                trackerlist = ("trackers currently in use" +str(list(cfg["tracker"].keys())))
+            if selection == "5":
+                print(trackerlist)
+                cfg, selection = runsetup(cfg)
+            elif selection == "1":
+                print(trackerlist)
+                folder_selected = filedialog.askopenfilename()
 
-        if len(list(cfg["tracker"].keys())) >0:
-            trackerlist = ("trackers currently in use" +str(list(cfg["tracker"].keys())))
-        if selection == "5":
-            print(trackerlist)
-            cfg, selection = runsetup(cfg)
-        elif selection == "1":
-            print(trackerlist)
-            folder_selected = filedialog.askopenfilename()
+            elif selection == "2" or selection =="3" or selection =="4":
+                print(trackerlist)
+                folder_selected = filedialog.askdirectory()
 
-        elif selection == "2" or selection =="3" or selection =="4":
-            print(trackerlist)
-            folder_selected = filedialog.askdirectory()
-
-        elif selection == "6":
-            print("Exiting.")
-            exit()
-        else:
-            print("Incorrect selection. Please select 1-6")
-            selection = "0"
+            elif selection == "6":
+                print("Exiting.")
+                exit()
+            else:
+                print("Incorrect selection. Please select 1-6")
+                selection = "0"
+        except:
+            print("No folder selected")
+            pass
     return folder_selected, selection, cfg
 
 #function for naming for video type
@@ -256,8 +259,9 @@ def createtorrent(folloc, selection):
     
         mediainfo = MediaInfo.parse(folloc)
         media_info = MediaInfo.parse(folloc, output="", full=False)  #parse media info object in text format
+
         try:
-            media_info = media_info.replace("\n","")
+            mediainfowrite = media_info.replace("\n","")
         except:
             pass
 
@@ -269,7 +273,7 @@ def createtorrent(folloc, selection):
         mediainfo = MediaInfo.parse(target)
         media_info = MediaInfo.parse(target, output="", full=False) #parse media info object in text format
         try:
-            media_info = media_info.replace("\n","")
+            mediainfowrite = media_info.replace("\n","")
         except:
             pass
         print("selecting file for media info and screens: "+str(onlyfiles[0]))
@@ -317,7 +321,7 @@ def createtorrent(folloc, selection):
     mediainfoutput = open(cwd+"\\torrents\\aamediainfo/"+str(torrentname)+'.txt',"w")
     mediainfoutput.write(str(media_info))
     print("torrent and mediainfo written to "+newdir+" as " +torrentname+".torrent")
-
+    mediainfodirectory = str(cwd)+"\\torrents\\aamediainfo/"+str(torrentname)+'.txt'
 
 
     print("capturing screens")
