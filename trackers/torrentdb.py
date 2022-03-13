@@ -11,7 +11,7 @@ import json
 import os
 import re
 
-def post(uploadlist , screenshots, remainder, duration, title_height, audioformat, videoformat,mediainfodirectory,usr,pwd):
+def post(uploadlist , screenshots, remainder, duration, title_height, audioformat, videoformat,mediainfodirectory,usr,pwd, tag):
     #VARIABLE INITIATION
 
     uploadlist = next(iter((uploadlist.items())) )
@@ -33,51 +33,62 @@ def post(uploadlist , screenshots, remainder, duration, title_height, audioforma
     mediainfo = mediainfodirectory
     tdbusername = usr
     tdbpassword  = pwd
-    releasegrp = "-TEiLiFiS"
+    releasegrp = tag
 
     #Remove tracker from title name
     short_title = title.replace("["+tracker+"] ","")
 
-    seasonmatch = re.compile("(.*).*S(\d*).*")
-    seasonepisode = re.compile("(.*).*S(\d*).*E(\d*)")
-    print(str(seasonepisode))
+    seasonmatch = re.compile("(.*).*S(\d*)\s.*")
+    seasonmatch2 = re.compile("(.*).*S(\d*)\.*")
+    seasonepisode = re.compile("(.*).*S(\d*)E(\d*)")
+
     try:
         seasonepisode = seasonepisode.match(short_title.upper()).groups()
+        print(str(seasonepisode))
         print("Season and episode found")
     except:
+        seasonepisode =["","",""]
         try:
             seasonmatch = seasonmatch.match(short_title.upper()).groups()
+            print(str(seasonmatch))
             print("Season found")
         except:
-            print("cannot match season/episode")
-            pass
+            try:
+                seasonmatch = seasonmatch2.match(short_title.upper()).groups()
+                print(str(seasonmatch))
+                print("Season found")
+            except:
+                print("cannot match season/episode")
+                pass
 
+    #identify end of title. initially if there
     season_indicators = [" S1", ".S1", " S0",".S0"," S2", ".S2"," S3", ".S3","S1", "S0", "S2","S3","Series"]
     movie_indicators = ["0) ", "9) ","8) ", "7) ","6) ", "5) ","4) ", "3) ","2) ", "1) ",]
     endtitle = ""
     for i in season_indicators:
         try:
-            endtitle = short_title.index(i)
+            endtitle = short_title.upper().index(i)
             duration= 1
             break
         except:
-
             pass
     if int(float(duration)) != 1:
         print("Not a tv show")
         for i in movie_indicators:
             try:
                 endtitle = short_title.index(i)
-                duration= 50000000
+                duration= 5000000
                 endtitle +=2
                 break
             except:
+                print("no year in brackets identified, not possibly to classify")
                 pass
     #cut the title
     try:
         short_title = short_title[:endtitle]
+        print("title assumed as "+short_title)
     except:
-        print("cannot shorten title")
+        print("cannot process title")
 
 
 
@@ -97,6 +108,7 @@ def post(uploadlist , screenshots, remainder, duration, title_height, audioforma
     driver = webdriver.Chrome(options=options)
     #driver = webdriver.Chrome(executable_path=chromedriverpath, options=options)
     driver.set_page_load_timeout(5)
+    driver.implicitly_wait(5)
     driver.get("https://www.torrentdb.net/upload")
 
     #todo add support for more formats
@@ -104,14 +116,16 @@ def post(uploadlist , screenshots, remainder, duration, title_height, audioforma
         filename = os.path.basename(video).lower()
         if "remux" in filename:
             type = "REMUX"
-        elif any(word in filename for word in [" web ", ".web.", "web-dl","webdl"]):
-            type = "WEB-DL"
         elif "webrip" in filename:
             type = "WEBRip"
+        elif any(word in filename for word in ["web", "web-dl","webdl"]):
+            type = "WEB-DL"
         # elif scene == True:
         # type = "ENCODE"
         elif "hdtv" in filename:
             type = "HDTV"
+        elif "sdtv" in filename:
+            type = "SDTV"
         elif "disk" in filename:
             type = "Disk"
         #elif "dvdrip" in filename:
@@ -124,18 +138,23 @@ def post(uploadlist , screenshots, remainder, duration, title_height, audioforma
     source = get_type(title)
 
     movchoice = {
-    "Disk" : "54",
-    "WEB-DL" :"6",
-    "WEBRip" : "55",
-    "Remux" : "56",
-    "Encode" : "57"
+        "Disk" : "54",
+        "WEB-DL" :"6",
+        "WEBRip" : "55",
+        "Remux" : "56",
+        "Encode" : "57",
+        "HDTV" : "58",
+        "SDTV" : "59"
+
     }
     tvchoice = {
-    "Disk" : "60",
-    "WEB-DL" : "21",
-    "WEBRip" : "61",
-    "Remux" : "62",
-    "Encode" : "63"
+        "Disk" : "60",
+        "WEB-DL" : "21",
+        "WEBRip" : "61",
+        "Remux" : "62",
+        "Encode" : "63",
+        "HDTV" : "64",
+        "SDTV" : "65"
     }
 
     #LOGIN
@@ -145,15 +164,15 @@ def post(uploadlist , screenshots, remainder, duration, title_height, audioforma
             password_input = driver.find_element(By.NAME, "password")
             username_input.send_keys(username) ##################FIX THIS
             password_input.send_keys(password) ############################FIX THIS
-            time.sleep(1)
+
             login_attempt = driver.find_element(By.XPATH, "//*[@type='submit']")
             login_attempt.submit()
-            print("waiting?")
+            print("attempting upload..")
             #cookiepath = os.path.abspath(f"\\torrents\\tdb.pkl")
             #pickle.dump(browser.get_cookies(), open(cookiepath, "wb"))
             #cookies = pickle.load(open(cookiepath, "rb"))
         except TimeoutException as ex:
-            print("force continuing..")
+            print("automatically moving to upload page..")
             pass
         #driver.get("https://www.torrentdb.net/upload")
 
@@ -165,31 +184,32 @@ def post(uploadlist , screenshots, remainder, duration, title_height, audioforma
     #DATA INPUT
     def fill_data():
         error = "cannot autocomplete: "
-        #title
 
+        #mediainfo and description
+        text_field = driver.find_element(By.XPATH, "//*[@class='wysibb-text-editor wysibb-body']")
+        text_field.send_keys("Torrent creation and Upload supported by torrenter\nhttps://github.com/pythonkenyard/TDBuploader")
+        mediainfoinput = driver.find_element(By.NAME, "mediainfo")
         try:
-            torrent_upload = driver.find_element(By.XPATH, "//*[@type='file']")
-            torrent_upload.send_keys(torrentlocation)
-            time.sleep(1)
+            mediainfoinput.send_keys(mediainfo)
         except:
-            print("not able to upload torrent")
-            error = error +"torrent upload"
-            time.sleep(1)
-
+            error = error + " and media info"
+        time.sleep(0.5)
+        #screenshot upload
         try:
             for screenshot in screenshots:
                 #print(str(screenshot))
                 cwd=os.getcwd()
                 screenshot=screenshot[1:]
                 driver.find_element(By.NAME, 'screenshots[]').send_keys(cwd+screenshot)
-
-            print("uploaded screenshots")
+                time.sleep(0.2)
         except:
             error = error +"screenshot upload"
             time.sleep(1)
+
         #category and type
         try:
             driver.find_element(By.NAME, 'category_id').click()
+            time.sleep(0.3)
             #duration
             if int(float(duration)) >3682600:
                 driver.find_element(By.XPATH,'//option[@value="1"]').click()
@@ -210,38 +230,82 @@ def post(uploadlist , screenshots, remainder, duration, title_height, audioforma
         except:
             error = error +"category, type"
             pass
-        try:
-            uploadtitle = driver.find_element(By.NAME, "name")
-            uploadtitle.clear()
-
-            if len(seasonepisode) >1:
-                uploadtitle.send_keys(short_title + " S"+str(seasonepisode[1])+"E"+str(seasonepisode[2])+" "+ resolution + " "+ source + " "+format+ " " + audioformat+releasegrp)
-            elif len(seasonmatch)>1:
-                uploadtitle.send_keys(short_title + " S"+str(seasonepisode[1])+" "+ resolution + " "+ source + " "+format+ " " + audioformat+releasegrp)
-            else:
-                uploadtitle.send_keys(short_title + " "+ resolution + " "+ source + " "+format+ " " + audioformat+releasegrp)
-            time.sleep(1)
-        except:
-            pass
-        #RESOLUTION
+        time.sleep(0.5)
+        print(resolution)
+        #RESOLUTION SELECTION
         try:
             driver.find_element(By.NAME, 'resolution').click()
-            driver.find_element(By.XPATH,'//option[@value="'+resolution+'"]').click()
+            time.sleep(0.5)
+            try:
+                driver.find_element(By.XPATH,f"//option[@value='{resolution}']").click()
+            except:
+                pass
+
             time.sleep(1)
         except:
             print("cannot select resolution")
             error = error + " resolution"
             time.sleep(1)
 
-        text_field = driver.find_element(By.XPATH, "//*[@class='wysibb-text-editor wysibb-body']")
-        text_field.send_keys("Torrent creation and Upload supported by torrenter\nhttps://github.com/pythonkenyard/TDBuploader")
-        mediainfoinput = driver.find_element(By.NAME, "mediainfo")
+        #torrent upload
         try:
-            mediainfoinput.send_keys(mediainfo)
+            torrent_upload = driver.find_element(By.XPATH, "//*[@type='file']")
+            torrent_upload.send_keys(torrentlocation)
+            time.sleep(0.2)
         except:
-            error = error + " and media info"
+            print("not able to upload torrent")
+            error = error +"torrent upload"
+            time.sleep(1)
 
-        manual = input(str(error)+"\n PLEASE MANUALLY COMPLETE THESE LAST FIELDS AND press enter")
+            print("uploaded screenshots")
+
+        #Naming and Episode input
+
+        uploadtitle = driver.find_element(By.NAME, "name")
+        uploadtitle.clear()
+
+
+        if len(seasonepisode[2]) >0:
+            print("assigning season/episode title")
+            try:
+                episode_selector = driver.find_elements(By.CSS_SELECTOR,"input[type='radio'][value='0']")
+                print(len(episode_selector))
+                print("Updating selectction as Season/Episode")
+                try:
+                    episode_selector[2].send_keys(" ")
+                except:
+                    pass
+                try:
+                    episode_selector[3].send_keys(" ")
+                except:
+                    pass
+                time.sleep(0.5)
+                ep = driver.find_element(By.NAME, "episode")
+                time.sleep(0.3)
+
+                uploadtitle.send_keys(short_title + " S"+str(seasonepisode[1])+"E"+str(seasonepisode[2])+" "+ resolution + " "+ source + " "+format+ " " + audioformat+releasegrp)
+            except:
+                try:
+                    uploadtitle.send_keys(short_title + " S"+str(seasonepisode[1])+"E"+str(seasonepisode[2])+" "+ resolution + " "+ source + " "+format+ " " + audioformat+releasegrp)
+                except:
+                    error = error + ",title"
+        elif len(seasonmatch[1])>0:
+            print("assigning season title")
+            try:
+                uploadtitle.send_keys(short_title + " S"+str(seasonmatch[1])+" "+ resolution + " "+ source + " "+format+ " " + audioformat+releasegrp)
+                print(f"assigning title {short_title} {seasonmatch[1]}")
+            except:
+                error = error + ",title"
+        else:
+            print("assigning movie standard title")
+            try:
+                uploadtitle.send_keys(short_title + " "+ resolution + " "+ source + " "+format+ " " + audioformat+releasegrp)
+            except:
+                error = error + ",title"
+        time.sleep(0.5)
+
+        ep.send_keys(seasonepisode[2])
+        manual = input(str(error)+"\n PLEASE VERIFY MOVIE/SHOW AND COMPLETE THESE LAST FIELDS AND press enter")
         try:
 
             print("submitting")
