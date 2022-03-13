@@ -17,7 +17,7 @@ with open("config/config.yaml", 'r') as stream:
 #todo - update media parsing to name file.
 #todo - check against tvdb/tmdb for name?
 #todo - photo upload to external site?
-#todo - auto torrent upload
+#todo - update tracker should select an existing one and ask which settings to modify or delete.
 
 #Settings / configuration update menu
 def runsetup(cfg):
@@ -37,45 +37,75 @@ def runsetup(cfg):
         """NOTE 5 REQUIRES TO REMAIN FIXED POSITION DUE TO RETURN AS SELECTION"""
         if setupselection == "1" or setupselection == "3":
             if setupselection == "3":
-                trackername = input("Please type your tracker to update "+str(list(cfg["tracker"].keys()))+": ")
+
+                item = 1
+                for tracker in list(cfg["tracker"].keys()):
+                    print("("+str(item)+") "+tracker)
+                    item+=1
+                trackername = input("Please type your tracker to update else press z to exit: ")
+                if trackername > 0:
+                    try:
+                        trackername = cfg["tracker"][trackername]
+                        print("Updating settings for"+trackername)
+                        trackerupdate = True
+                    except:
+                        print("failed to select tracker")
+                else:
+                     print("failed to select tracker")
+
             else:
-                trackername = input("Please name your tracker: ")
-            announce = input("Please enter your announce url: ")
+                trackername = input("Please name your tracker e.g. 'torrentdb': ")
+            if trackerupdate:
+                print("not yet setup")
+                announce = input("Please enter your announce url: ")
+                #do something
+            else:
+                announce = input("Please enter your announce url: ")
 
             autotorrent = True
 
-            autorename = input("Do you want torrents to have file info appended (H.264 / AAC 2.0 etc) [y/n]: ")
+            autorename = input("[future feature] Do you want torrents to be renamed e.g (1080p H.264 AAC 2.0 etc) [y/n]: ")
             if autorename == "y" or autorename == "Y":
                 autorename == True
             else:
                 autorename == False
             if trackername.lower() == "torrentdb":
                 autoupload = input("Would you like to enable auto upload[y/n]")
-                if autoupload == "y":
+                if autoupload.lower() == "y":
                     autoupload = True
                     usr = str(input("Please enter your login name: "))
                     pwd = str(input("Please enter your password: "))
-                    releasegrp = str(input("Input your release group e.g. -Ntb"))
+                    releasegrp = str(input("Input your release group e.g. '-Ntb'"))
                     if len(releasegrp) == 0:
-                        releasegrp = " "
+                        releasegrp = ""
                 else:
                     autoupload = False
                     usr = "n/a"
                     pwd = "n/a"
             else:
+                usr = "n/a"
+                pwd = "n/a"
+                releasegrp = ""
                 print("Autoupload set to false. Only supported for tracker 'torrentdb'")
                 autoupload = False
-
+            #prep to update config file
             screenshots = input("How many screenshots are required (note future feature): ")
             trackerdata = {"announce": announce, "autotorrent" : autotorrent, "autorename" : autorename, "autoupload" : autoupload, "screenshots" : screenshots, "usr": usr, "pwd" : pwd, "releasegrp": releasegrp}
+
             if cfg["tracker"] is None:
                 cfg["tracker"] = {trackername : trackerdata}
             else:
                 cfg["tracker"][trackername] = trackerdata
             print("Added. Current trackers "+str(list(cfg["tracker"].keys())))
+            #write data
             with open('config/config.yaml','w') as yamlfile:
                 yaml.safe_dump(cfg, yamlfile)
             print("Tracker info updated")
+            yamlfile.close()
+            #reload config
+            with open("config/config.yaml", 'r') as stream:
+                cfg = yaml.safe_load(stream)
+        #update trackers. Ideally create a list here and selection based on this.
         elif setupselection == "2":
             print("Possible trackers to remove:"+str(list(cfg["tracker"].keys())))
             trackername = input("Please name your tracker to delete or exit to return to settings: ")
@@ -147,7 +177,7 @@ def get_video_id(mediainfo):
 
         if track.format == "AVC":
             if track.encoding_settings:
-                return "x264"
+                return "H.264"
             return "H.264"
         elif track.format == "HEVC":
             if track.commercial_name == "HDR10" and track.color_primaries:
@@ -242,7 +272,7 @@ class Folder:
         self.name = self.folloc[self.startdigit+1:len(self.folloc)]
         self.directory = self.folloc[0:self.startdigit]
 
-class File():
+class File:
     type = "file"
     def __init__(self, folloc):
         self.folloc = folloc
@@ -254,7 +284,11 @@ class File():
 def createtorrent(folloc, selection):
     folloc = folloc
     selection = selection
+
+
     #If files selected can parse directly, otherwise need to select internal files
+
+
     if selection == "1" or selection == "2":
     
         mediainfo = MediaInfo.parse(folloc)
@@ -263,22 +297,48 @@ def createtorrent(folloc, selection):
         try:
             mediainfowrite = media_info.replace("\n","")
         except:
+            mediainfowrite = media_info
             pass
 
         cam = cv2.VideoCapture(folloc)
     else:
-        onlyfiles = [f for f in listdir(folloc) if isfile(join(folloc, f))]
-        target = folloc+"/"+str(onlyfiles[0])
-        #print("file to grab: " +target)
-        mediainfo = MediaInfo.parse(target)
-        media_info = MediaInfo.parse(target, output="", full=False) #parse media info object in text format
         try:
-            mediainfowrite = media_info.replace("\n","")
+            onlyfiles = [f for f in listdir(folloc) if isfile(join(folloc, f))]
+            target = folloc+"/"+str(onlyfiles[0])
+            print("file to use for screens and mediainfo: " +target)
+            mediainfo = MediaInfo.parse(target)
+            media_info = MediaInfo.parse(target, output="", full=False) #parse media info object in text format
+            try:
+                mediainfowrite = media_info.replace("\n","")
+            except:
+                mediainfowrite = media_info
+                pass
+
+            cam = cv2.VideoCapture(target)
         except:
-            pass
-        print("selecting file for media info and screens: "+str(onlyfiles[0]))
-        cam = cv2.VideoCapture(folloc+"/"+str(onlyfiles[0])) 
-    print("grabbed media info")
+            print("Warning. cannot detect file within the first folder. Attempting to go one folder deeper.\nNote this is not preferred for tracker uploads.\nOption 4 to split seasons by torrent is generally preferred for automated programs such as sonarr or radarr to work.\nIf you are doing a full pack upload You should Ideally label each Series folder with the Title and Season at a minimum.")
+            pack = input("Please press y to continue with torrent creation or n to cancel[y/n]")
+            if pack == "y":
+                internal_folders = os.listdir(folloc)
+                first_internal_folder = internal_folders[0]
+                print(str(first_internal_folder))
+                print(str(folloc)+"/"+str(first_internal_folder))
+                onlyfiles = [f for f in listdir(folloc+"/"+first_internal_folder) if isfile(join(folloc,first_internal_folder, f))]
+                target = folloc+"/"+first_internal_folder+"/"+str(onlyfiles[0])
+                #print("file to grab: " +target)
+                mediainfo = MediaInfo.parse(target)
+                media_info = MediaInfo.parse(target, output="", full=False) #parse media info object in text format
+                try:
+                    mediainfowrite = media_info.replace("\n","")
+                except:
+                    mediainfowrite = media_info
+                    pass
+                print("selecting file for media info and screens: "+str(onlyfiles[0]))
+                cam = cv2.VideoCapture(target)
+            else:
+                print("Exiting, please restart")
+                exit()
+        print("grabbed media info")
     #print("media info\n"+str(media_info))
 
     ###get audio and video format for naming torrent
@@ -294,15 +354,19 @@ def createtorrent(folloc, selection):
     torrentname = folloc[startdigit:len(folloc)]
     print(str(torrentname))
     newdir= cwd+"\\torrents\\"
-
+    mediainfodir = cwd+"\\torrents\\aamediainfo"
     newdir = newdir+ str(torrentname)
     print("Attempting to create "+str(newdir))
     #need to split torrentname "/torrentname.torrent"
     slash=torrentname[0:1]
     remainder = torrentname[1:len(str(torrentname))]
-
     try:
         os.mkdir(newdir)
+        #Directory for media info creation also. required once only.
+        try:
+            os.mkdir(mediainfodir)
+        except:
+            pass
     except:
         print("Error. Torrent output directory already exists.. this will overwrite content...")
     uploadlist = {}
@@ -319,10 +383,10 @@ def createtorrent(folloc, selection):
                 uploadlist[i] = str(newdir)+str(slash)+torrent
 
     mediainfoutput = open(cwd+"\\torrents\\aamediainfo/"+str(torrentname)+'.txt',"w")
-    mediainfoutput.write(str(media_info))
+    mediainfoutput.write(str(mediainfowrite))
     print("torrent and mediainfo written to "+newdir+" as " +torrentname+".torrent")
     mediainfodirectory = str(cwd)+"\\torrents\\aamediainfo/"+str(torrentname)+'.txt'
-
+    mediainfoutput.close()
 
     print("capturing screens")
     # frame
@@ -342,7 +406,7 @@ def createtorrent(folloc, selection):
             else:
                 frame_number=frame_number+3000
                 # if video is still left continue creating images
-                name = './torrents/'+str(torrentname)+"/" + str(torrentname)+str(frame_number) + '.jpg'
+                name = './torrents/'+str(torrentname)+"/" + str(torrentname)+str(frame_number) + '.png'
                 print('Creating...' + name)
                 screenshots.append(name)
                 # writing the extracted images
@@ -372,5 +436,6 @@ def createtorrent(folloc, selection):
             print(z)
             usr = cfg["tracker"][z]["usr"]
             pwd  = cfg["tracker"][z]["pwd"]
+            tag = cfg["tracker"][z]["releasegrp"]
             print(uploadlist)
-            post(uploadlist,screenshots, remainder, duration, title_height, audioformat,videoformat, media_info,usr,pwd)
+            post(uploadlist,screenshots, remainder, duration, title_height, audioformat,videoformat, media_info,usr,pwd,tag)
