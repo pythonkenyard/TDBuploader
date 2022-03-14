@@ -304,7 +304,8 @@ def post(uploadlist , screenshots, remainder, duration, title_height, audioforma
                 error = error + ",title"
         time.sleep(0.5)
 
-        ep.send_keys(seasonepisode[2])
+        if len(seasonepisode[2]) >0:
+            ep.send_keys(seasonepisode[2])
         manual = input(str(error)+"\n PLEASE VERIFY MOVIE/SHOW AND COMPLETE THESE LAST FIELDS AND press enter")
         try:
 
