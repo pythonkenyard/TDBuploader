@@ -13,6 +13,7 @@ If you have already installed python and pip skip to Install python requirements
 ### Installing Python  
 Open powershell and type python which should bring you to the windows store for pyton install. or download from here  
 ** Note in the install windows ensure to tick the add python to environmental path option. If you miss this, reinstall and tick it**
+Note currently confirmed working on python 3.10 and 3.9
 Download link https://www.python.org/downloads/
 
 ### Installing Pip, wheel and setuptools
