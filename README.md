@@ -8,16 +8,17 @@ Note: Autoupload requires chrome support and chromedriver matching your chrome v
 Download https://github.com/pythonkenyard/TDBuploader/archive/refs/heads/main.zip  
 Unzip and open the folder you created.  
 in the explorer bar at the top of folder type "powershell" or "cmd" to open a powershell or cmd window for this folder    
-If you have already installed pyton and pip skip to Install python requirements.    
+If you have already installed python and pip skip to Install python requirements.  
+
 ### Installing Python  
-type python which should bring you to the windows store for pyton install. or download from here  
+Open powershell and type python which should bring you to the windows store for pyton install. or download from here  
 ** Note in the install windows ensure to tick the add python to environmental path option. If you miss this, reinstall and tick it**
-64 bit - https://www.python.org/ftp/python/3.10.2/python-3.10.2-amd64.exe  
-32 bit - https://www.python.org/ftp/python/3.10.2/python-3.10.2.exe
-### Installing Pip  
-in your cmd window type  
-1. curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py  
-2. python get-pip.py
+Download link https://www.python.org/downloads/
+
+### Installing Pip, wheel and setuptools
+in your cmd/powershell window type  
+1. py -m ensurepip --default-pip
+2. py -m pip install --upgrade pip setuptools wheel
 
 ### Install python requirements
 pip install -r requirements.txt  
