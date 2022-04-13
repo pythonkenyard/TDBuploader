@@ -49,15 +49,17 @@ class bhd(tracker):
             "SDTV" : "65"
         }
         """
-
-        chromedirectory = r"C:\Users\Shane\AppData\Local\Google\Chrome\User Data\Default" ####configure this for public release
+        
         """
         Chromedriver initialisation
         """
         chromedriverpath='/binaries/chromedriver.exe'
         chromePath = '/binaries/chrome.exe'
         options = webdriver.ChromeOptions()
-        options.add_argument(rf"user-data-dir={chromedirectory}")
+        
+        try:
+            localappdir = os.path.join(os.getenv("LOCALAPPDATA"), "Google\\Chrome\\User Data\\Profile 2")
+            options.add_argument(f"user-data-dir={localappdir}")
         options.add_argument('--no-sandbox')
         options.add_argument('--ignore-ssl-errors')
         options.add_experimental_option("excludeSwitches", ["enable-logging"])
