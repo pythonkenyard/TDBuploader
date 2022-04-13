@@ -10,9 +10,10 @@ from pymediainfo import MediaInfo
 import yaml
 from MediaInfo import MediaInfo as smo
 import time
-from trackers.torrentdb import post
+import trackers.torrentdb as torrentdb
 with open("config/config.yaml", 'r') as stream:
     cfg = yaml.safe_load(stream)
+
 
 #todo - update media parsing to name file.
 #todo - check against tvdb/tmdb for name?
@@ -23,80 +24,97 @@ with open("config/config.yaml", 'r') as stream:
 def runsetup(cfg):
     cfg = cfg
     setupselection = "0"
-    while setupselection != "5":
+
+    while setupselection != "z":
+        os.system("cls")
         setupselection = input(
             "Please select the update you wish to make\n \
 (1)Add new tracker.\n \
-(2)Remove a tracker\n \
-(3)Edit tracker config\n \
+(2)Edit tracker config\n \
+(3)Remove a tracker\n \
 (4)Add additional websites to sourcelist (In development)\n \
-(5)Return to MAIN MENU.\n \
-(6)List trackers and config.\n \
-(7)Enable/Disable CLI mode for file selection(In development)\n \
+(5)List trackers and config.\n \
+(z)Return to MAIN MENU.\n \
 -->Selection: ")
-        """NOTE 5 REQUIRES TO REMAIN FIXED POSITION DUE TO RETURN AS SELECTION"""
-        if setupselection == "1" or setupselection == "3":
-            if setupselection == "3":
-
+        """(6)Enable/Disable CLI mode for file selection(In development)\n """
+        os.system("cls")
+        if setupselection == "1" or setupselection == "2":
+            if setupselection == "2":
                 item = 1
-                for tracker in list(cfg["tracker"].keys()):
-                    print("("+str(item)+") "+tracker)
+                trackerlist = list(cfg["tracker"].keys())
+                for tracker in trackerlist:
+                    print(f"({item}) {tracker}")
                     item+=1
-                trackername = input("Please type your tracker to update else press z to exit: ")
-                if trackername > 0:
-                    try:
-                        trackername = cfg["tracker"][trackername]
-                        print("Updating settings for"+trackername)
-                        trackerupdate = True
-                    except:
-                        print("failed to select tracker")
-                else:
-                     print("failed to select tracker")
+                print("(z) Exit")
+                item -=1
+                trackernumber = input(f"Please select 1 - {item}: ")
+                try:
+                    trackernumber = int(trackernumber) -1
+                    trackerupdate = list(cfg["tracker"].keys())[trackernumber]
+                    trackerattribute = 0
+                    while trackerattribute != "z":
+                        trackeritem =1
+                        trackerkeys = list(cfg["tracker"][trackerupdate].keys())
+                        for i in trackerkeys:
+                            print(f"({trackeritem}) {i} : {cfg['tracker'][trackerupdate][i]}")
+                            trackeritem +=1
+                        print("(z) To exit")
+                        trackeritem -=1
+                        trackerattribute = input(f"select the item from 1-{trackeritem} you wish to update: ")
+                        trackerattribute = int(trackerattribute)-1
 
+                        print(f"\ncurrently {trackerkeys[trackerattribute]} is {cfg['tracker'][trackerupdate][trackerkeys[trackerattribute]]}")
+                        cfg['tracker'][trackerupdate][trackerkeys[trackerattribute]] = input(f"select new value for {trackerkeys[trackerattribute]}: ")
+
+                        os.system("cls")
+                        print(f"\n{trackerkeys[trackerattribute]} is updated to {cfg['tracker'][trackerupdate][trackerkeys[trackerattribute]]}\n")
+                except:
+                    print("returning to main menu")
+                    setupselection = "0"
             else:
                 trackername = input("Please name your tracker e.g. 'torrentdb': ")
-            if trackerupdate:
-                print("not yet setup")
-                announce = input("Please enter your announce url: ")
-                #do something
-            else:
-                announce = input("Please enter your announce url: ")
-
-            autotorrent = True
-
-            autorename = input("[future feature] Do you want torrents to be renamed e.g (1080p H.264 AAC 2.0 etc) [y/n]: ")
-            if autorename == "y" or autorename == "Y":
-                autorename == True
-            else:
-                autorename == False
-            if trackername.lower() == "torrentdb":
-                autoupload = input("Would you like to enable auto upload[y/n]")
-                if autoupload.lower() == "y":
-                    autoupload = True
-                    usr = str(input("Please enter your login name: "))
-                    pwd = str(input("Please enter your password: "))
-                    releasegrp = str(input("Input your release group e.g. '-Ntb'"))
-                    if len(releasegrp) == 0:
-                        releasegrp = ""
+                #tracker name defined above, trackernumber if updating
+                if trackernumber:
+                    announce = input("Please enter your announce url: ")
+                    #do something
                 else:
-                    autoupload = False
+                    announce = input("Please enter your announce url: ")
+
+                autotorrent = True
+
+                autorename = input("[future feature] Do you want torrents to be renamed e.g (1080p H.264 AAC 2.0 etc) [y/n]: ")
+                if autorename == "y" or autorename == "Y":
+                    autorename == True
+                else:
+                    autorename == False
+                if trackername.lower() == "torrentdb" or trackername.lower() == "beyondhd" or trackername.lower() == "bhd" or trackername.lower() == "tdb":
+                    autoupload = input("Would you like to enable auto upload[y/n]")
+                    if autoupload.lower() == "y":
+                        autoupload = True
+                        usr = str(input("Please enter your login name: "))
+                        pwd = str(input("Please enter your password: "))
+                        releasegrp = str(input("Input your release group e.g. '-Ntb'"))
+                        if len(releasegrp) == 0:
+                            releasegrp = ""
+                    else:
+                        autoupload = False
+                        usr = "n/a"
+                        pwd = "n/a"
+                else:
                     usr = "n/a"
                     pwd = "n/a"
-            else:
-                usr = "n/a"
-                pwd = "n/a"
-                releasegrp = ""
-                print("Autoupload set to false. Only supported for tracker 'torrentdb'")
-                autoupload = False
-            #prep to update config file
-            screenshots = input("How many screenshots are required (note future feature): ")
-            trackerdata = {"announce": announce, "autotorrent" : autotorrent, "autorename" : autorename, "autoupload" : autoupload, "screenshots" : screenshots, "usr": usr, "pwd" : pwd, "releasegrp": releasegrp}
+                    releasegrp = ""
+                    print("Autoupload set to false. Only supported for tracker 'torrentdb'")
+                    autoupload = False
+                #prep to update config file
+                screenshots = input("How many screenshots are required (note future feature): ")
+                trackerdata = {"announce": announce, "autotorrent" : autotorrent, "autorename" : autorename, "autoupload" : autoupload, "screenshots" : screenshots, "usr": usr, "pwd" : pwd, "releasegrp": releasegrp}
 
-            if cfg["tracker"] is None:
-                cfg["tracker"] = {trackername : trackerdata}
-            else:
-                cfg["tracker"][trackername] = trackerdata
-            print("Added. Current trackers "+str(list(cfg["tracker"].keys())))
+                if cfg["tracker"] is None:
+                    cfg["tracker"] = {trackername : trackerdata}
+                else:
+                    cfg["tracker"][trackername] = trackerdata
+                print("Added. Current trackers "+str(list(cfg["tracker"].keys())))
             #write data
             with open('config/config.yaml','w') as yamlfile:
                 yaml.safe_dump(cfg, yamlfile)
@@ -105,8 +123,10 @@ def runsetup(cfg):
             #reload config
             with open("config/config.yaml", 'r') as stream:
                 cfg = yaml.safe_load(stream)
+
+
         #update trackers. Ideally create a list here and selection based on this.
-        elif setupselection == "2":
+        elif setupselection == "3":
             print("Possible trackers to remove:"+str(list(cfg["tracker"].keys())))
             trackername = input("Please name your tracker to delete or exit to return to settings: ")
             for i in list(cfg["tracker"].keys()):
@@ -115,7 +135,7 @@ def runsetup(cfg):
                     print("Removed "+i)
             with open('config/config.yaml','w') as yamlfile:
                 yaml.safe_dump(cfg, yamlfile)
-        elif setupselection == "6":
+        elif setupselection == "5":
             print("\nCURRENT ACTIVE TRACKERS:")
             for i in cfg["tracker"].keys():
                 print("\nTracker: "+str(i))
@@ -123,51 +143,65 @@ def runsetup(cfg):
                     print(str(j) + " : "+str(cfg["tracker"][i][j]))
             time.sleep(3)
             print("\n\n")
+    setupselection = 0
     return cfg, setupselection
 
 
 
 #Launch window
 def selectfolder(selection, cfg):
-    selection = str(selection)
-    while selection == "0" or selection == "5":
-        root = Tk()
-        root.withdraw()
-        if selection == "0" or selection == "5":
-            selection = input(
-        "Please select your upload type from 1-4 or enter setup\n\n \
-(1)Single file e.g. single upload not including folder.\n \
-(2)Multiple files as separate torrent uploads e.g. loose episode files\n \
-(3)Single Folder e.g. Season pack or Single file within a Folder\n \
-(4)Multiple folder uploads as separate torrents e.g. a Series with torrent for each Season\n \
-(5)Enter Setup.\n \
-(6)Exit.\n \
--->Selection: ")
-        try:
-            if len(list(cfg["tracker"].keys())) >0:
-                trackerlist = ("trackers currently in use" +str(list(cfg["tracker"].keys())))
-            if selection == "5":
-                print(trackerlist)
-                cfg, selection = runsetup(cfg)
-            elif selection == "1":
-                print(trackerlist)
-                folder_selected = filedialog.askopenfilename()
+    loop = True
+    while loop:
+        folder_selected = ""
+        os.system("cls")
+        selection = str(selection)
+        while selection == "0" or selection == "5":
+            root = Tk()
+            root.withdraw()
+            if selection == "0" or selection == "5":
+                selection = input(
+            "Please select your upload type from 1-4 or enter setup\n\n\
+Files:\n\
+(1)Single file.\n\
+(2)Multiple files as multiple separate torrents\n\n\
+Folders:\n\
+(3)Single Folder e.g. Series or Season pack\n\
+(4)Multiple folder uploads as multiple torrents e.g. Mass movie upload (select parent directory)\n\n\
+(5)Enter Setup.\n\n\
+(z)Exit.\n\
+ -->Selection: ")
+            try:
+                if len(list(cfg["tracker"].keys())) >0:
+                    trackerlist = ("trackers currently in use" +str(list(cfg["tracker"].keys())))
+                if selection == "5":
+                    print(trackerlist)
+                    cfg, selection = runsetup(cfg)
+                    selection = str(selection)
+                elif selection == "1":
+                    print(trackerlist)
+                    folder_selected = filedialog.askopenfilename()
 
-            elif selection == "2" or selection =="3" or selection =="4":
-                print(trackerlist)
-                folder_selected = filedialog.askdirectory()
+                elif selection == "2" or selection =="3" or selection =="4":
+                    print(trackerlist)
+                    folder_selected = filedialog.askdirectory()
 
-            elif selection == "6":
-                print("Exiting.")
-                exit()
-            else:
-                print("Incorrect selection. Please select 1-6")
+                elif selection == "z":
+                    print("Exiting")
+                    return "none",selection, cfg
+                else:
+                    print("Incorrect selection. Please select 1-6")
+                    selection = "0"
+            except:
+                print("No folder selected")
                 selection = "0"
-        except:
-            print("No folder selected")
-            pass
-    return folder_selected, selection, cfg
+                pass
 
+        try:
+            return folder_selected, selection, cfg
+            loop = False
+        except:
+            print('No Folder selected')
+            loop = True
 #function for naming for video type
 def get_video_id(mediainfo):
     try:
@@ -424,18 +458,30 @@ def createtorrent(folloc, selection):
     cv2.destroyAllWindows()
 
     print("Torrent(s) created in "+str(newdir)+"\nReturning to Main menu.")
-    print(str(uploadlist))
+    #print(str(uploadlist))
+
     if len(uploadlist) >0:
         print("Running autoupload for:")
-        for i in uploadlist.keys():
-            print ("uploading torrent for "+str(i))
         #print(str(uploadlist))
-        for z in uploadlist:
+
+        for y in uploadlist.items():
             #{tracker:torrent}, screenshots, title name, duration, height, audio format, video format
             #NOTE UPLOADLIST NEEDS TO BE REMOVED FROM POST(UPLOADLIST IF THERE ARE MULTIPLE TRACKERS
-            print(z)
-            usr = cfg["tracker"][z]["usr"]
-            pwd  = cfg["tracker"][z]["pwd"]
-            tag = cfg["tracker"][z]["releasegrp"]
-            print(uploadlist)
-            post(uploadlist,screenshots, remainder, duration, title_height, audioformat,videoformat, media_info,usr,pwd,tag)
+
+            print ("uploading torrent for "+str(y))
+            if y[0] == "beyondhd" or y[0] == "bhd":
+                print("skipping beyond hd for now")
+                
+            elif y[0] == "torrentdb" or y[0] == "tdb":
+
+                usr = cfg["tracker"][y[0]]["usr"]
+                pwd  = cfg["tracker"][y[0]]["pwd"]
+                tag = cfg["tracker"][y[0]]["releasegrp"]
+
+                y = {y[0]:y[1]} #convert tracker and torrent location to dict
+                tdb = torrentdb.tdb(y,screenshots, remainder, duration, title_height, audioformat,videoformat, media_info,usr,pwd,tag)
+
+                videosource = tdb.get_type()
+                short_title, seasonepisode, seasonmatch = tdb.get_short_title()
+
+                tdb.login(videosource, seasonepisode, seasonmatch, short_title)
