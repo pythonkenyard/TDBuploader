@@ -36,45 +36,48 @@ try:
     print("You have preselected "+selection)
 except:
     pass
-total = 1
-torrentlist=[]
 
-while selection != "6":
+
+while selection != "z":
     selection = "0"
+    total = 1
+    torrentlist=[]
     folloc, selection, cfg = selectfolder(selection, cfg)
 
+    try:
+        if int(selection) > 1:
+            topfolder = Folder(folloc)
+            print("Folder directory is " + topfolder.directory  + " \nFolder name is "+topfolder.name)
+        else:
+            print("Single file to be uploaded")
+            torrentlist.append(folloc)
 
-    if int(selection) > 1:
-        topfolder = Folder(folloc)
-        print("Folder directory is " + topfolder.directory  + " \nFolder name is "+topfolder.name)
-    else:
-        print("Single file to be uploaded")
-        torrentlist.append(folloc)
+        if selection == "2" or selection == "4":
+            topfolder.content = os.listdir(folloc)
 
-    if selection == "2" or selection == "4":
-        topfolder.content = os.listdir(folloc)
+            for i in topfolder.content:
+                folfolloc = folloc+"/"+str(i)
+                if selection == "4":
+                    topfolder.i = Folder(folfolloc)
+                    topfolder.i.content = os.listdir(folfolloc)
+                else:
+                    topfolder.i = File(folfolloc)
+                print(str(total)+"."+"Cued to create torrent "+ folfolloc)
 
-        for i in topfolder.content:
-            folfolloc = folloc+"/"+str(i)
-            if selection == "4":
-                topfolder.i = Folder(folfolloc)
-                topfolder.i.content = os.listdir(folfolloc)
-            else:
-                topfolder.i = File(folfolloc)
-            print(str(total)+"."+"Cued to create torrent "+ folfolloc)
+                if topfolder.i.type == "folder":
+                    for item in topfolder.i.content:
+                        print("Content of torrent is "+ str(item) + ".")
+                else:
+                     print("Single file")
+                total +=1
+                torrentlist.append(folfolloc)
+            print("Total torrents to create is "+str(total))
 
-            if topfolder.i.type == "folder":
-                for item in topfolder.i.content:
-                    print("Content of torrent is "+ str(item) + ".")
-            else:
-                 print("Single file")
-            total +=1
-            torrentlist.append(folfolloc)
-        print("Total torrents to create is "+str(total))
+        elif selection == "3":
+            torrentlist.append(folloc)
 
-    elif selection == "3":
-        torrentlist.append(folloc)
-
-    print("Creating torrent..")
-    for torrent in torrentlist:
-        createtorrent(torrent, selection)
+        print("Creating torrent..")
+        for torrent in torrentlist:
+            createtorrent(torrent, selection)
+    except:
+        pass
