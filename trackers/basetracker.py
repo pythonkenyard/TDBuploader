@@ -33,12 +33,12 @@ class tracker():
             try:
                 seasonmatch = seasonmatch.match(short_title.upper()).groups()
                 print(str(seasonmatch))
-                print("Season found")
+                print("Season type A found")
             except:
                 try:
                     seasonmatch = seasonmatch2.match(short_title.upper()).groups()
                     print(str(seasonmatch))
-                    print("Season found")
+                    print("Potential Season type B found")
                 except:
                     print("cannot match season/episode")
                     pass
@@ -63,9 +63,23 @@ class tracker():
                     self.duration= 5000000
                     endtitle +=2
                     print("end of title found to be "+str(i))
+                    titlenotfound = False
                     break
                 except:
+                    titlenotfound = True
                     pass
+        if endtitle == "":
+            try:
+                #if "." is used around year instead of ()
+                #print("Second check on possible movie naming")
+                endtitle = re.search("\.\d\d\d\d\.", short_title).start()
+                print("matched year "+ str(short_title[endtitle:endtitle+4]))
+                #moviematch = moviematch.match(short_title.upper()).groups()
+                #endtitle = short_title.index(moviematch)
+                self.duration= 5000000
+                endtitle += 5
+            except:
+                pass
         #cut the title based on the above
         try:
             short_title = short_title[:endtitle]
@@ -83,6 +97,7 @@ class tracker():
     #todo add support for more formats
     def get_type(self):
         print(str(self.title))
+        videosource2 = ""
         filename = os.path.basename(self.title).lower()
         if "remux" in filename:
             videosource = "REMUX"
@@ -94,8 +109,15 @@ class tracker():
             videosource = "HDTV"
         elif "sdtv" in filename:
             videosource = "SDTV"
-        elif "disk" in filename:
+        elif any(word in filename for word in ["disk", "bd50", "bd25", "dvd9"]):
             videosource = "Disk"
+            videosource2 =  word.upper()
+        elif "bluray" in filename:
+            videosource = "ENCODE"
+            videosource2 = "BluRay"
+        elif "dvdrip" in filename:
+            videosource = "ENCODE"
+            videosource2 = "DVDRip"
         else:
             videosource = "ENCODE"
-        return videosource
+        return videosource, videosource2
