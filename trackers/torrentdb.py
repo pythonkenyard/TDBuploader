@@ -25,7 +25,7 @@ class tdb(tracker):
         self.torrentlocation = uploadlist[1]
 
 
-    def login(self, videosource, seasonepisode, seasonmatch, short_title):
+    def login(self, videosource, seasonepisode, seasonmatch, short_title, videosource2):
         videosource = videosource
         movchoice = {
             "Disk" : "54",
@@ -119,6 +119,7 @@ class tdb(tracker):
         except:
             error = error +"screenshot upload"
             time.sleep(1)
+
         #category and type
         print(f"assigning {videosource}")
         try:
@@ -170,6 +171,12 @@ class tdb(tracker):
         uploadtitle = driver.find_element(By.NAME, "name")
         uploadtitle.clear()
 
+        #remove "encode from naming"
+        if videosource == "ENCODE":
+            videosource = videosource2
+            #if self.resolution == "720p" or self.resolution == "1080p":
+            #    videosource = "Blueray"
+            #elif self.resolution == "480p" or self.resolution == "576p":
 
         if len(seasonepisode[2]) >0:
             print("assigning season/episode title")
@@ -189,7 +196,7 @@ class tdb(tracker):
                 ep = driver.find_element(By.NAME, "episode")
                 time.sleep(0.3)
 
-                uploadtitle.send_keys(short_title + " S"+str(seasonepisode[1])+"E"+str(seasonepisode[2])+" "+ self.resolution + " "+ videosource + " "+self.format+ " " + self.audioformat+self.releasegrp)
+                uploadtitle.send_keys(f"{short_title} S{seasonepisode[1]} E{seasonepisode[2]} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
             except:
                 try:
                     uploadtitle.send_keys(short_title + " S"+str(seasonepisode[1])+"E"+str(seasonepisode[2])+" "+ self.resolution + " "+ videosource + " "+self.format+ " " + self.audioformat+self.releasegrp)
