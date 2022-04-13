@@ -65,7 +65,6 @@ class tracker():
                     print("end of title found to be "+str(i))
                     break
                 except:
-                    print("no year in brackets identified, not possibly to classify")
                     pass
         #cut the title based on the above
         try:
@@ -77,7 +76,8 @@ class tracker():
                 pass
             print("title assumed as "+short_title)
         except:
-            print("cannot process title")
+            print("cannot process title automatically.")
+            short_title = input("Please manually input title: ")
         return short_title, seasonepisode, seasonmatch
 
     #todo add support for more formats
