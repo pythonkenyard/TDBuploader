@@ -1,5 +1,4 @@
 tkinter
-torf
 pyxdg
 json
 pathlib
@@ -8,4 +7,5 @@ selenium
 selenium-wire
 pyaml
 pymediainfo
+pyperclip
 git+https://github.com/rndusr/torf-cli.git
