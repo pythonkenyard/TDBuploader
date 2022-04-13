@@ -1,264 +1,170 @@
-import seleniumwire
-import selenium
+import os
+import time
+
+import pyperclip as pc
+from selenium.common.exceptions import TimeoutException
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-import time
-from selenium.common.exceptions import TimeoutException
-import json
-import os
-import re
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.select import Select
 
-def post(uploadlist , screenshots, remainder, duration, title_height, audioformat, videoformat,mediainfodirectory,usr,pwd, tag):
-    #VARIABLE INITIATION
+from trackers.basetracker import tracker
 
-    uploadlist = next(iter((uploadlist.items())) )
-    #print(str(uploadlist))
+class tdb(tracker):
 
-    tracker  = uploadlist[0]
-    torrentlocation = uploadlist[1]
-    #torrentlocation = torrentlocation[2:-2]
-    #print (str(tracker)+ " \ntorrent location is  " +str(torrentlocation))
-    #torrentlocation=i[tracker]
-    screenshots = screenshots
-    #print(str(screenshots))
-    title = remainder
-    duration = duration
-    print(str(duration))
-    resolution = title_height
-    audioformat = audioformat
-    format = videoformat
-    mediainfo = mediainfodirectory
-    tdbusername = usr
-    tdbpassword  = pwd
-    releasegrp = tag
+    def __init__(self, uploadlist , screenshots, remainder, duration, title_height, audioformat, videoformat, media_info, usr, pwd, tag):
+        super().__init__(screenshots, remainder, duration, title_height, audioformat, videoformat )
 
-    #Remove tracker from title name
-    short_title = title.replace("["+tracker+"] ","")
+        uploadlist = next(iter((uploadlist.items())) )
+        print(str(uploadlist))
 
-    seasonmatch = re.compile("(.*).*S(\d*)\s.*")
-    seasonmatch2 = re.compile("(.*).*S(\d*)\.*")
-    seasonepisode = re.compile("(.*).*S(\d*)E(\d*)")
+        self.tdbusername = usr
+        self.releasegrp = tag
+        self.tdbpassword  = pwd
+        self.mediainfo = media_info
+        self.torrentlocation = uploadlist[1]
 
-    try:
-        seasonepisode = seasonepisode.match(short_title.upper()).groups()
-        print(str(seasonepisode))
-        print("Season and episode found")
-    except:
-        seasonepisode =["","",""]
+
+    def login(self, videosource, seasonepisode, seasonmatch, short_title):
+        videosource = videosource
+        movchoice = {
+            "Disk" : "54",
+            "WEB-DL" :"6",
+            "WEBRip" : "55",
+            "Remux" : "56",
+            "Encode" : "57",
+            "HDTV" : "58",
+            "SDTV" : "59"
+        }
+        tvchoice = {
+            "Disk" : "60",
+            "WEB-DL" : "21",
+            "WEBRip" : "61",
+            "Remux" : "62",
+            "Encode" : "63",
+            "HDTV" : "64",
+            "SDTV" : "65"
+        }
+
+
+        """
+        Chromedriver initialisation
+        """
+        chromedriverpath='/binaries/chromedriver.exe'
+        chromePath = '/binaries/chrome.exe'
+        options = webdriver.ChromeOptions()
+        options.add_argument('--no-sandbox')
+        options.add_argument('--ignore-ssl-errors')
+        localappdir = os.path.join(os.getenv("LOCALAPPDATA"), "Google\\Chrome\\User Data\\Profile 2")
         try:
-            seasonmatch = seasonmatch.match(short_title.upper()).groups()
-            print(str(seasonmatch))
-            print("Season found")
+            options.add_argument(f"user-data-dir={localappdir}")
         except:
-            try:
-                seasonmatch = seasonmatch2.match(short_title.upper()).groups()
-                print(str(seasonmatch))
-                print("Season found")
-            except:
-                print("cannot match season/episode")
-                pass
+            print("chrome profile not possible to create. Will attempt direct login with user/password each time.")
+        options.add_experimental_option("excludeSwitches", ["enable-logging"])
+        driver = webdriver.Chrome(options=options)
+        driver.set_page_load_timeout(8)
+        driver.implicitly_wait(5)
 
-    #identify end of title. initially if there
-    season_indicators = [" S1", ".S1", " S0",".S0"," S2", ".S2"," S3", ".S3","S1", "S0", "S2","S3","Series"]
-    movie_indicators = ["0) ", "9) ","8) ", "7) ","6) ", "5) ","4) ", "3) ","2) ", "1) ",]
-    endtitle = ""
-    for i in season_indicators:
-        try:
-            endtitle = short_title.upper().index(i)
-            duration= 1
-            break
-        except:
-            pass
-    if int(float(duration)) != 1:
-        print("Not a tv show")
-        for i in movie_indicators:
-            try:
-                endtitle = short_title.index(i)
-                duration= 5000000
-                endtitle +=2
-                break
-            except:
-                print("no year in brackets identified, not possibly to classify")
-                pass
-    #cut the title
-    try:
-        short_title = short_title[:endtitle]
-        print("title assumed as "+short_title)
-    except:
-        print("cannot process title")
+        #options.add_argument("download.default_directory=C:/Downloads") #####ENABLE THIS IN FUTURE FOR SETTING DOWNLOAD LOCATION
+        #options.add_argument('--headless')
+        #driver = webdriver.Chrome(executable_path=chromedriverpath, options=options)
 
+        print("Loading page...")
+        driver.get("https://www.torrentdb.net/upload")
 
-
-    #WEBDRIVER
-    chromedriverpath='/binaries/chromedriver.exe'
-    chromePath = '/binaries/chrome.exe'
-    print("Loading page...")
-    options = webdriver.ChromeOptions()
-    #options.binary_location = chromePath
-    options.add_argument('--no-sandbox')
-    #options.add_argument("download.default_directory=C:/Downloads") #####ENABLE THIS IN FUTURE FOR SETTING DOWNLOAD LOCATION
-    #options.add_argument('--headless')
-    options.add_argument('--ignore-ssl-errors')
-    options.add_experimental_option("excludeSwitches", ["enable-logging"])
-
-    print("loading options")
-    driver = webdriver.Chrome(options=options)
-    #driver = webdriver.Chrome(executable_path=chromedriverpath, options=options)
-    driver.set_page_load_timeout(5)
-    driver.implicitly_wait(5)
-    driver.get("https://www.torrentdb.net/upload")
-
-    #todo add support for more formats
-    def get_type(video):
-        filename = os.path.basename(video).lower()
-        if "remux" in filename:
-            type = "REMUX"
-        elif "webrip" in filename:
-            type = "WEBRip"
-        elif any(word in filename for word in ["web", "web-dl","webdl"]):
-            type = "WEB-DL"
-        # elif scene == True:
-        # type = "ENCODE"
-        elif "hdtv" in filename:
-            type = "HDTV"
-        elif "sdtv" in filename:
-            type = "SDTV"
-        elif "disk" in filename:
-            type = "Disk"
-        #elif "dvdrip" in filename:
-        #    cprint("DVDRip Detected, exiting", 'grey', 'on_red')
-
-        else:
-            type = "ENCODE"
-        return type
-
-    source = get_type(title)
-
-    movchoice = {
-        "Disk" : "54",
-        "WEB-DL" :"6",
-        "WEBRip" : "55",
-        "Remux" : "56",
-        "Encode" : "57",
-        "HDTV" : "58",
-        "SDTV" : "59"
-
-    }
-    tvchoice = {
-        "Disk" : "60",
-        "WEB-DL" : "21",
-        "WEBRip" : "61",
-        "Remux" : "62",
-        "Encode" : "63",
-        "HDTV" : "64",
-        "SDTV" : "65"
-    }
-
-    #LOGIN
-    def login(username, password):
+        #LOGIN
         try:
             username_input = driver.find_element(By.NAME, "username")
             password_input = driver.find_element(By.NAME, "password")
-            username_input.send_keys(username) ##################FIX THIS
-            password_input.send_keys(password) ############################FIX THIS
-
+            username_input.send_keys(self.tdbusername)
+            password_input.send_keys(self.tdbpassword)
+            rememberlogin = driver.find_element(By.NAME, "remember")
+            rememberlogin.send_keys(" ")
             login_attempt = driver.find_element(By.XPATH, "//*[@type='submit']")
             login_attempt.submit()
             print("attempting upload..")
             #cookiepath = os.path.abspath(f"\\torrents\\tdb.pkl")
             #pickle.dump(browser.get_cookies(), open(cookiepath, "wb"))
             #cookies = pickle.load(open(cookiepath, "rb"))
+            driver.find_element_by_xpath("//*[contains(text(), 'Upload')]").click()
         except TimeoutException as ex:
             print("automatically moving to upload page..")
             pass
-        #driver.get("https://www.torrentdb.net/upload")
-
-        driver.find_element_by_xpath("//*[contains(text(), 'Upload')]").click()
-
-    login(tdbusername, tdbpassword)
-    #WebDriverWait(driver, 7).until(EC.presence_of_element_located((By.ID , 'tv_upload')))
-
-    #DATA INPUT
-    def fill_data():
-        error = "cannot autocomplete: "
-
-        #mediainfo and description
-        text_field = driver.find_element(By.XPATH, "//*[@class='wysibb-text-editor wysibb-body']")
-        text_field.send_keys("Torrent creation and Upload supported by torrenter\nhttps://github.com/pythonkenyard/TDBuploader")
-        mediainfoinput = driver.find_element(By.NAME, "mediainfo")
-        try:
-            mediainfoinput.send_keys(mediainfo)
         except:
-            error = error + " and media info"
-        time.sleep(0.5)
-        #screenshot upload
-        try:
-            for screenshot in screenshots:
-                #print(str(screenshot))
-                cwd=os.getcwd()
-                screenshot=screenshot[1:]
-                driver.find_element(By.NAME, 'screenshots[]').send_keys(cwd+screenshot)
-                time.sleep(0.2)
-        except:
-            error = error +"screenshot upload"
-            time.sleep(1)
-
-        #category and type
-        try:
-            driver.find_element(By.NAME, 'category_id').click()
-            time.sleep(0.3)
-            #duration
-            if int(float(duration)) >3682600:
-                driver.find_element(By.XPATH,'//option[@value="1"]').click()
-                print("movie")
-
-                selection = movchoice[source]
-                driver.find_element(By.XPATH,'//option[@value="'+selection+'"]').click()
-            elif int(float(duration)) <=3682600:
-                driver.find_element(By.XPATH,'//option[@value="2"]').click()
-                print("tv show")
-
-                selection = tvchoice[source]
-
-                driver.find_element(By.XPATH,'//option[@value="'+selection+'"]').click()
-            else:
-                input("format undetermined. please insert manually and press enter")
-
-        except:
-            error = error +"category, type"
             pass
-        time.sleep(0.5)
-        print(resolution)
-        #RESOLUTION SELECTION
-        try:
-            driver.find_element(By.NAME, 'resolution').click()
-            time.sleep(0.5)
-            try:
-                driver.find_element(By.XPATH,f"//option[@value='{resolution}']").click()
-            except:
-                pass
 
-            time.sleep(1)
-        except:
-            print("cannot select resolution")
-            error = error + " resolution"
-            time.sleep(1)
+        #DATA INPUT
+        #def fill_data(self):
+        error = "Errors: "
 
         #torrent upload
         try:
             torrent_upload = driver.find_element(By.XPATH, "//*[@type='file']")
-            torrent_upload.send_keys(torrentlocation)
+            torrent_upload.send_keys(self.torrentlocation)
             time.sleep(0.2)
         except:
             print("not able to upload torrent")
             error = error +"torrent upload"
             time.sleep(1)
+        #screenshot upload
 
+        try:
+            for screenshot in self.screenshots:
+                #print(str(screenshot))
+                cwd=os.getcwd()
+                screenshot=screenshot[1:]
+                driver.find_element(By.NAME, 'screenshots[]').send_keys(cwd+screenshot)
+                time.sleep(0.1)
             print("uploaded screenshots")
+        except:
+            error = error +"screenshot upload"
+            time.sleep(1)
+        #category and type
+        print(f"assigning {videosource}")
+        try:
+            driver.find_element(By.NAME, 'category_id').click()
+            time.sleep(0.3)
+            #duration
+            if int(float(self.duration)) >3682600:
+                driver.find_element(By.XPATH,'//option[@value="1"]').click()
+                print("movie")
 
+                selection = movchoice[videosource]
+                driver.find_element(By.XPATH,'//option[@value="'+selection+'"]').click()
+            elif int(float(self.duration)) <=3682600:
+                driver.find_element(By.XPATH,'//option[@value="2"]').click()
+                print("tv show")
+
+                selection = tvchoice[videosource]
+
+                driver.find_element(By.XPATH,'//option[@value="'+selection+'"]').click()
+            else:
+                input("Please manually select the category type as tv or movie")
+
+        except:
+            error = error +"category, type"
+            pass
+        time.sleep(0.8)
+        print(self.resolution)
+        #RESOLUTION SELECTION
+        try:
+            resolution_selection = Select(driver.find_element(By.NAME, 'resolution'))
+            print("selecting resolution")
+            resolution_selection.select_by_visible_text(self.resolution)
+
+            #driver.find_element(By.NAME, 'resolution').click()
+            #time.sleep(5)
+            #try:
+            #    driver.find_element(By.XPATH,f"//option[@value='{self.resolution}']").send_keys(" ")
+            #except:
+            #    time.sleep(10)
+            #    print("cannot input resolution")
+            #    error = error + ", resolution"
+            time.sleep(0.5)
+        except:
+            print("cannot select resolution")
+            error = error + ", resolution"
+            time.sleep(1)
         #Naming and Episode input
 
         uploadtitle = driver.find_element(By.NAME, "name")
@@ -283,38 +189,67 @@ def post(uploadlist , screenshots, remainder, duration, title_height, audioforma
                 ep = driver.find_element(By.NAME, "episode")
                 time.sleep(0.3)
 
-                uploadtitle.send_keys(short_title + " S"+str(seasonepisode[1])+"E"+str(seasonepisode[2])+" "+ resolution + " "+ source + " "+format+ " " + audioformat+releasegrp)
+                uploadtitle.send_keys(short_title + " S"+str(seasonepisode[1])+"E"+str(seasonepisode[2])+" "+ self.resolution + " "+ videosource + " "+self.format+ " " + self.audioformat+self.releasegrp)
             except:
                 try:
-                    uploadtitle.send_keys(short_title + " S"+str(seasonepisode[1])+"E"+str(seasonepisode[2])+" "+ resolution + " "+ source + " "+format+ " " + audioformat+releasegrp)
+                    uploadtitle.send_keys(short_title + " S"+str(seasonepisode[1])+"E"+str(seasonepisode[2])+" "+ self.resolution + " "+ videosource + " "+self.format+ " " + self.audioformat+self.releasegrp)
                 except:
                     error = error + ",title"
         elif len(seasonmatch[1])>0:
             print("assigning season title")
             try:
-                uploadtitle.send_keys(short_title + " S"+str(seasonmatch[1])+" "+ resolution + " "+ source + " "+format+ " " + audioformat+releasegrp)
+                uploadtitle.send_keys(short_title + " S"+str(seasonmatch[1])+" "+ self.resolution + " "+ videosource + " "+self.format+ " " + self.audioformat+self.releasegrp)
                 print(f"assigning title {short_title} {seasonmatch[1]}")
             except:
                 error = error + ",title"
         else:
             print("assigning movie standard title")
             try:
-                uploadtitle.send_keys(short_title + " "+ resolution + " "+ source + " "+format+ " " + audioformat+releasegrp)
+                uploadtitle.send_keys(short_title + " "+ self.resolution + " "+ videosource + " "+self.format+ " " + self.audioformat+self.releasegrp)
             except:
                 error = error + ",title"
         time.sleep(0.5)
 
         if len(seasonepisode[2]) >0:
+            try:
+                print(type(seasonepisode[2]))
+                #remove leading 0 if it exists
+                removedzero = seasonepisode[2].replace("0","")
+                print("removed leading zero")
+                seasonepisode[2] = removedzero
+            except:
+                pass
             ep.send_keys(seasonepisode[2])
+
+        #description
+        text_field = driver.find_element(By.XPATH, "//*[@class='wysibb-text-editor wysibb-body']")
+        pc.copy("Torrent creation and Upload supported by torrenter\nhttps://github.com/pythonkenyard/TDBuploader")
+        text_field.send_keys(Keys.CONTROL, 'v')
+
+        #mediainfo
+        mediainfoinput = driver.find_element(By.NAME, "mediainfo")
+        try:
+            pc.copy(self.mediainfo)
+            mediainfoinput.send_keys(Keys.CONTROL, 'v')
+        except:
+            try:
+                mediainfoinput.send_keys(self.mediainfo)
+            except:
+                error = error + " and media info"
+        time.sleep(0.3)
+
         manual = input(str(error)+"\n PLEASE VERIFY MOVIE/SHOW AND COMPLETE THESE LAST FIELDS AND press enter")
+        
         try:
 
             print("submitting")
-            button1 = driver.find_element(By.XPATH, "//*[@type='submit']").click()
+            button1 = driver.find_element(By.XPATH, "//*[@type='submit']")
+            button1.click()
             print("first button pressed")
-            button1 = driver.find_element(By.XPATH, "//*[@type='submit']").click()
+            button1 = driver.find_element(By.XPATH, "//*[@type='submit']")
+            button1.click()
             print("submitted1")
-            button1()
+
 
             print("submitted")
 
@@ -341,4 +276,3 @@ def post(uploadlist , screenshots, remainder, duration, title_height, audioforma
         time.sleep(5)
         driver.close()
         driver.quit()
-    fill_data()
