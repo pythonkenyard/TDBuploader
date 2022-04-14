@@ -1,3 +1,6 @@
+#**Current working trackers**
+-TorrentDB
+
 # TDBuploader  
 Script for creation of torrents, for your tracker, which also creates text file with mediainfo and 5 screenshots ready for uploading.  
 Supports mass creation of torrents from folders or a folder of files.  
@@ -29,10 +32,9 @@ https://adamtheautomator.com/wp-content/uploads/2021/01/ALT_D_PowerShell.gif
 you need to open cmd/powershell window **in the folder** or cd to the location then type:    
 python main.py  
 
-Note 1st setup will ask you for your announce tracker and save this to file.  
-  
-If you already know what you want to do e.g. single file upload you can pre-select the option 1-4 to go direct to file selection.   
-python main.py 1
+if you get any errors such as pyperclip no such module found try running "pip install pyperclip" and then running python main.py again
+
+Note 1st setup will ask you for your tracker and save yout tracker to file.  
   
 torrents are output to the /torrent subfolder.   
   
@@ -46,24 +48,32 @@ torrents are output to the /torrent subfolder.
 7. Save torrent to /torrents.
 8. Settings menu to add or remove trackers.
 9. Autoupload is in initial stages
-  
+10. Torrent renaming is automated for most files
+11. File recognition working.
+12. Add support for tagging uploads (Currently everything is configured to use my release tag for tdb
+13. Season and Episode selection based on file name for tdb
+
 # To do:  
-8. Need to improve torrent naming.
-9. File recognition needs work.
-10. Add support for tagging uploads (Currently everything is configured to use my release tag for tdb
-11. Season and Episode selection based on file name for tdb
-
-13. Support for upload to BHD
-14. Support for upload to PHD
-
-16. Hashing user/pw
+14. Support for upload to BHD (Current primary focus)
+15. Automatic IMDB/TMDB/TVDB checking
+16. Tracker selection (when multiple ask which to be used)
+17. Support for upload to UHDB
+18. Support direct file/folder input from cmd line
+19. Support for upload to PHD
+20. Torrent renaming needs some improvements
+21. Hashing user/pw
+22. Support for full disks
+23. 
   
   
 # General repository requirements yet to be completed  
-Create wiki/readme  
-create requirements list  
+Validate/check requirements list  
   
 # Issues  
-auto naming of files/torrents  
-Interface with site API for automatic upload   
-How do deal with multiple files for media info?  
+Auto naming of files/torrents doesnt include e.g. "theatrical cut". No support for HDR, DV naming.
+Uses Selenium and doesnt Interface with site API for automatic upload   
+Currently only outputs media info for one file.
+
+Useful notes:
+If you already know what you want to do e.g. single file upload you can pre-select the option 1-4 to go direct to file selection.   
+python main.py 1
