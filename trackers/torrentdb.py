@@ -13,7 +13,7 @@ from trackers.basetracker import tracker
 class tdb(tracker):
 
     def __init__(self, uploadlist , screenshots, remainder, duration, title_height, audioformat, videoformat, media_info, usr, pwd, tag):
-        super().__init__(screenshots, remainder, duration, title_height, audioformat, videoformat )
+        super().__init__(screenshots, remainder, duration, title_height, audioformat, videoformat, media_info)
 
         uploadlist = next(iter((uploadlist.items())) )
         print(str(uploadlist))
@@ -21,11 +21,11 @@ class tdb(tracker):
         self.tdbusername = usr
         self.releasegrp = tag
         self.tdbpassword  = pwd
-        self.mediainfo = media_info
+
         self.torrentlocation = uploadlist[1]
 
 
-    def login(self, videosource, seasonepisode, seasonmatch, short_title, videosource2):
+    def login(self, videosource, seasonepisode, seasonmatch, short_title, videosource2,downloadsource):
         videosource = videosource
         movchoice = {
             "Disk" : "54",
@@ -92,11 +92,10 @@ class tdb(tracker):
             pass
         except:
             pass
-
         #DATA INPUT
-        #def fill_data(self):
-        error = "Errors: "
 
+        error = "Errors: "
+        print("Uploading torrent")
         #torrent upload
         try:
             torrent_upload = driver.find_element(By.XPATH, "//*[@type='file']")
@@ -134,7 +133,7 @@ class tdb(tracker):
                 driver.find_element(By.XPATH,'//option[@value="'+selection+'"]').click()
             elif int(float(self.duration)) <=3682600:
                 driver.find_element(By.XPATH,'//option[@value="2"]').click()
-                print("tv show")
+                print("Assigning tv show. Please correct if short movie")
 
                 selection = tvchoice[videosource]
 
@@ -195,44 +194,56 @@ class tdb(tracker):
                 time.sleep(0.5)
                 ep = driver.find_element(By.NAME, "episode")
                 time.sleep(0.3)
-
-                uploadtitle.send_keys(f"{short_title} S{seasonepisode[1]} E{seasonepisode[2]} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
+                if downloadsource == "":
+                    uploadtitle.send_keys(f"{short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
+                else:
+                    uploadtitle.send_keys(f"{short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
             except:
                 try:
-                    uploadtitle.send_keys(short_title + " S"+str(seasonepisode[1])+"E"+str(seasonepisode[2])+" "+ self.resolution + " "+ videosource + " "+self.format+ " " + self.audioformat+self.releasegrp)
+                    if downloadsource == "":
+                        uploadtitle.send_keys(f"{short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
+                    else:
+                        uploadtitle.send_keys(f"{short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
                 except:
-                    error = error + ",title"
+                    error = error + "torrent title, "
         elif len(seasonmatch[1])>0:
             print("assigning season title")
             try:
-                uploadtitle.send_keys(short_title + " S"+str(seasonmatch[1])+" "+ self.resolution + " "+ videosource + " "+self.format+ " " + self.audioformat+self.releasegrp)
+                if downloadsource == "":
+                    uploadtitle.send_keys(f"{short_title} S{seasonmatch[1]} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
+
+                else:
+                    uploadtitle.send_keys(f"{short_title} S{seasonmatch[1]} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
                 print(f"assigning title {short_title} {seasonmatch[1]}")
             except:
                 error = error + ",title"
         else:
             print("assigning movie standard title")
             try:
-                uploadtitle.send_keys(short_title + " "+ self.resolution + " "+ videosource + " "+self.format+ " " + self.audioformat+self.releasegrp)
+                if downloadsource == "":
+                    uploadtitle.send_keys(f"{short_title} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
+                else:
+                    uploadtitle.send_keys(f"{short_title} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
             except:
                 error = error + ",title"
         time.sleep(0.5)
 
         if len(seasonepisode[2]) >0:
             try:
-                print(type(seasonepisode[2]))
+                removedzero = seasonepisode[2]
                 #remove leading 0 if it exists
                 removedzero = seasonepisode[2].replace("0","")
                 print("removed leading zero")
-                seasonepisode[2] = removedzero
+
             except:
                 pass
-            ep.send_keys(seasonepisode[2])
+            ep.send_keys(removedzero)
 
         #description
         text_field = driver.find_element(By.XPATH, "//*[@class='wysibb-text-editor wysibb-body']")
         pc.copy("Torrent creation and Upload supported by torrenter\nhttps://github.com/pythonkenyard/TDBuploader")
         text_field.send_keys(Keys.CONTROL, 'v')
-
+        print("pasting media info")
         #mediainfo
         mediainfoinput = driver.find_element(By.NAME, "mediainfo")
         try:
