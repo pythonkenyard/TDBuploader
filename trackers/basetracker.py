@@ -4,7 +4,7 @@ import os
 
 class tracker():
 
-    def __init__(self, screenshots, remainder, duration, title_height, audioformat, videoformat):
+    def __init__(self, screenshots, remainder, duration, title_height, audioformat, videoformat, media_info):
 
         self.screenshots = screenshots
         self.title = remainder
@@ -13,13 +13,10 @@ class tracker():
         self.resolution = title_height
         self.audioformat = audioformat
         self.format = videoformat
-
+        self.mediainfo = media_info
 
     def get_short_title(self):
-        #print(str(self.title))
-        #startoftitle = self.title.index("]")+1
-        #short_title = self.title[startoftitle:]
-        #print("file is "+short_title)
+
         seasonmatch = re.compile("(.*).*S(\d*)\s.*")
         seasonmatch2 = re.compile("(.*).*S(\d*)\.*")
         seasonepisode = re.compile("(.*).*S(\d*)E(\d*)")
@@ -111,7 +108,7 @@ class tracker():
             videosource = "SDTV"
         elif any(word in filename for word in ["disk", "bd50", "bd25", "dvd9"]):
             videosource = "Disk"
-            videosource2 =  word.upper()
+            videosource2 = word.upper()
         elif "bluray" in filename:
             videosource = "ENCODE"
             videosource2 = "BluRay"
