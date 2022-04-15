@@ -7,6 +7,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.select import Select
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from trackers.basetracker import tracker
 
@@ -194,13 +196,13 @@ class tdb(tracker):
                 time.sleep(0.5)
                 ep = driver.find_element(By.NAME, "episode")
                 time.sleep(0.3)
-                if downloadsource == "":
+                if (downloadsource is None):
                     uploadtitle.send_keys(f"{short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
                 else:
                     uploadtitle.send_keys(f"{short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
             except:
                 try:
-                    if downloadsource == "":
+                    if (downloadsource is None):
                         uploadtitle.send_keys(f"{short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
                     else:
                         uploadtitle.send_keys(f"{short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
@@ -209,7 +211,7 @@ class tdb(tracker):
         elif len(seasonmatch[1])>0:
             print("assigning season title")
             try:
-                if downloadsource == "":
+                if (downloadsource is None):
                     uploadtitle.send_keys(f"{short_title} S{seasonmatch[1]} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
 
                 else:
@@ -220,7 +222,7 @@ class tdb(tracker):
         else:
             print("assigning movie standard title")
             try:
-                if downloadsource == "":
+                if (downloadsource is None):
                     uploadtitle.send_keys(f"{short_title} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
                 else:
                     uploadtitle.send_keys(f"{short_title} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
@@ -241,7 +243,7 @@ class tdb(tracker):
 
         #description
         text_field = driver.find_element(By.XPATH, "//*[@class='wysibb-text-editor wysibb-body']")
-        pc.copy("Torrent creation and Upload supported by torrenter\nhttps://github.com/pythonkenyard/TDBuploader")
+        pc.copy("Torrent creation and Upload supported by TDBuploader\nhttps://github.com/pythonkenyard/TDBuploader")
         text_field.send_keys(Keys.CONTROL, 'v')
         print("pasting media info")
         #mediainfo
@@ -257,39 +259,35 @@ class tdb(tracker):
         time.sleep(0.3)
 
         manual = input(str(error)+"\n PLEASE VERIFY MOVIE/SHOW AND COMPLETE THESE LAST FIELDS AND press enter")
-        
         try:
-
+            #if the show selection popup is there, automatically accept
+            showselectbutton = driver.find_elements(By.XPATH, "//*[@class='bg-clip-border rounded text-white text-center font-medium bg-blue-600 hover:bg-blue-500 text-sm cursor-pointer focus:outline-none px-3 py-2 w-full']")
+            showselectbutton[2].click()
+            print("assigned tdb choice")
+        except:
+            pass
+        try:
             print("submitting")
-            button1 = driver.find_element(By.XPATH, "//*[@type='submit']")
-            button1.click()
-            print("first button pressed")
-            button1 = driver.find_element(By.XPATH, "//*[@type='submit']")
-            button1.click()
-            print("submitted1")
+            submitbuttons = driver.find_element(By.XPATH, "//*[@type='submit']")
+            submitbuttons.send_keys(" ")
+            print("Submitted")
 
-
-            print("submitted")
 
         except:
             print("skipping first step")
             pass
         try:
+            downloadtorrent = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CSS_SELECTOR, "download"))).click()
+
             print("trying alternative submit")
             button3 = driver.find_element(By.XPATH, "//*[@type='submit']")
             button3.click()
+            time.sleep(13)
             print("clicked submit")
 
         except:
             pass
-        try:
-            print("trying last alternative submit")
-            button2 = driver.find_elements_by_xpath("//*[contains(text(), 'Upload')]")
-            button2.click()
-            print("clicked assubmit")
 
-        except:
-            pass
         print("allowing some time to fully submit if needed")
         time.sleep(5)
         driver.close()
