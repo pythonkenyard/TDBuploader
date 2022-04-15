@@ -1,7 +1,4 @@
-tkinter
 pyxdg
-json
-pathlib
 opencv-python
 selenium
 selenium-wire
