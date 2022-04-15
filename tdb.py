@@ -20,6 +20,7 @@ with open("config/config.yaml", 'r') as stream:
 #todo - photo upload to external site?
 #todo - update tracker should select an existing one and ask which settings to modify or delete.
 
+uploadtrackers = ["bhd","beyondhd","tdb","torrentdb"]
 """requirements for new tracker
 create new class
 import class to here
@@ -78,13 +79,10 @@ def runsetup(cfg):
                     print("returning to main menu")
                     setupselection = "0"
             else:
+                print(f"note supported trackers for auto upload\n{uploadtrackers}")
                 trackername = input("Please name your tracker e.g. 'torrentdb': ")
                 #tracker name defined above, trackernumber if updating
-                if trackernumber:
-                    announce = input("Please enter your announce url: ")
-                    #do something
-                else:
-                    announce = input("Please enter your announce url: ")
+                announce = input("Please enter your announce url: ")
 
                 autotorrent = True
 
@@ -102,9 +100,11 @@ def runsetup(cfg):
                         pwd = str(input("Please enter your password: "))
                         releasegrp = str(input("Input your release group e.g. '-Ntb'"))
                         if len(releasegrp) == 0:
-                            releasegrp = ""
+                            releasegrp = "-NoGrp"
                         if trackername.lower() == "beyondhd" or trackername.lower() == "bhd":
                             apikey = input("Please enter your api key: ")
+                        else:
+                            apikey = ""
                     else:
                         autoupload = False
                         usr = "n/a"
@@ -117,10 +117,11 @@ def runsetup(cfg):
                     autoupload = False
                 #prep to update config file
                 screenshots = input("How many screenshots are required (note future feature): ")
-                trackerdata = {"announce": announce, "autotorrent" : autotorrent, "autorename" : autorename, "autoupload" : autoupload, "screenshots" : screenshots, "usr": usr, "pwd" : pwd, "releasegrp": releasegrp}
-
+                trackerdata = {"announce": announce, "autotorrent" : autotorrent, "autorename" : autorename, "autoupload" : autoupload, "screenshots" : screenshots, "usr": usr, "pwd" : pwd, "releasegrp": releasegrp, "apikey": apikey}
+                #first addition needs to be added as such
                 if cfg["tracker"] is None:
                     cfg["tracker"] = {trackername : trackerdata}
+                #multiple trackers are appended
                 else:
                     cfg["tracker"][trackername] = trackerdata
                 print("Added. Current trackers "+str(list(cfg["tracker"].keys())))
@@ -226,7 +227,7 @@ def get_video_id(mediainfo):
             if track.commercial_name == "HDR10" and track.color_primaries:
                 return "HDR.HEVC"
             if track.commercial_name == "HEVC" and track.color_primaries:
-                return "HEVC"
+                return "10bit x265"
 
             return "DV.HEVC"
     except:
@@ -302,9 +303,6 @@ def get_audio_id(mediainfo):
     )
     return audio_id
 
-"""def source(name):
-    if word in mystring:
-    print('success')"""
 
 class Folder:
 
@@ -475,13 +473,12 @@ def createtorrent(folloc, selection):
         matching = ""
         matching = [s for s in sourcelist if s in title]
         try:
-            print(str(matching[0]))
             return matching[0]
         except:
             print("If download, source website undetermined")
 
     downloadsource = check_source(torrentname,cfg["sourcelist"])
-    print(downloadsource)
+    print(f"source site determined as {downloadsource}")
     time.sleep(5)
     if len(uploadlist) >0:
         print("Running autoupload for:")
@@ -493,9 +490,9 @@ def createtorrent(folloc, selection):
 
             print ("uploading torrent for "+str(y[0]))
             if y[0] == "beyondhd" or y[0] == "bhd":
-                print("skipping beyond hd for now")
                 #beyondhd = bhd.tdb(y,screenshots, remainder, duration, title_height, audioformat,videoformat, media_info,usr,pwd,tag)
-
+                #short_title, seasonepisode, seasonmatch = bhd.get_short_title()
+                print("soon...")
             elif y[0] == "torrentdb" or y[0] == "tdb":
 
                 usr = cfg["tracker"][y[0]]["usr"]
