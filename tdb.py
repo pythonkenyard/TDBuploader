@@ -426,11 +426,13 @@ def createtorrent(folloc, selection):
                 uploadlist[i] = str(newdir)+str(slash)+torrent
 
     mediainfoutput = open(cwd+"\\torrents\\aamediainfo/"+str(torrentname)+'.txt',"w")
+    mediainfoutput2 = open(newdir+f"/{torrentname}.txt","w")
     mediainfoutput.write(str(mediainfowrite))
+    mediainfoutput2.write(str(mediainfowrite))
     print("torrent and mediainfo written to "+newdir+" as " +torrentname+".torrent")
     mediainfodirectory = str(cwd)+"\\torrents\\aamediainfo/"+str(torrentname)+'.txt'
     mediainfoutput.close()
-
+    mediainfoutput2.close()
     print("capturing screens")
     # frame
     frame_number = 0
