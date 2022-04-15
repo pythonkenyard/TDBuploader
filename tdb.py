@@ -8,17 +8,23 @@ import json
 from pathlib import Path
 from pymediainfo import MediaInfo
 import yaml
-from MediaInfo import MediaInfo as smo
 import time
 import trackers.torrentdb as torrentdb
+
+
 with open("config/config.yaml", 'r') as stream:
     cfg = yaml.safe_load(stream)
-
 
 #todo - update media parsing to name file.
 #todo - check against tvdb/tmdb for name?
 #todo - photo upload to external site?
 #todo - update tracker should select an existing one and ask which settings to modify or delete.
+
+"""requirements for new tracker
+create new class
+import class to here
+add config line ~90 to include
+"""
 
 #Settings / configuration update menu
 def runsetup(cfg):
@@ -87,7 +93,8 @@ def runsetup(cfg):
                     autorename == True
                 else:
                     autorename == False
-                if trackername.lower() == "torrentdb" or trackername.lower() == "beyondhd" or trackername.lower() == "bhd" or trackername.lower() == "tdb":
+
+                if any (word in trackername.lower() for word in ["torrentdb", "tdb", "beyondhd", "bhd"]):
                     autoupload = input("Would you like to enable auto upload[y/n]")
                     if autoupload.lower() == "y":
                         autoupload = True
@@ -96,6 +103,8 @@ def runsetup(cfg):
                         releasegrp = str(input("Input your release group e.g. '-Ntb'"))
                         if len(releasegrp) == 0:
                             releasegrp = ""
+                        if trackername.lower() == "beyondhd" or trackername.lower() == "bhd":
+                            apikey = input("Please enter your api key: ")
                     else:
                         autoupload = False
                         usr = "n/a"
@@ -457,9 +466,21 @@ def createtorrent(folloc, selection):
     cam.release()
     cv2.destroyAllWindows()
 
-    print("Torrent(s) created in "+str(newdir)+"\nReturning to Main menu.")
-    #print(str(uploadlist))
+    print("Torrent(s) created in "+str(newdir))
 
+
+    def check_source(title,sourcelist):
+        matching = ""
+        matching = [s for s in sourcelist if s in title]
+        try:
+            print(str(matching[0]))
+            return matching[0]
+        except:
+            print("If download, source website undetermined")
+
+    downloadsource = check_source(torrentname,cfg["sourcelist"])
+    print(downloadsource)
+    time.sleep(5)
     if len(uploadlist) >0:
         print("Running autoupload for:")
         #print(str(uploadlist))
@@ -468,10 +489,11 @@ def createtorrent(folloc, selection):
             #{tracker:torrent}, screenshots, title name, duration, height, audio format, video format
             #NOTE UPLOADLIST NEEDS TO BE REMOVED FROM POST(UPLOADLIST IF THERE ARE MULTIPLE TRACKERS
 
-            print ("uploading torrent for "+str(y))
+            print ("uploading torrent for "+str(y[0]))
             if y[0] == "beyondhd" or y[0] == "bhd":
                 print("skipping beyond hd for now")
-                
+                #beyondhd = bhd.tdb(y,screenshots, remainder, duration, title_height, audioformat,videoformat, media_info,usr,pwd,tag)
+
             elif y[0] == "torrentdb" or y[0] == "tdb":
 
                 usr = cfg["tracker"][y[0]]["usr"]
@@ -481,7 +503,6 @@ def createtorrent(folloc, selection):
                 y = {y[0]:y[1]} #convert tracker and torrent location to dict
                 tdb = torrentdb.tdb(y,screenshots, remainder, duration, title_height, audioformat,videoformat, media_info,usr,pwd,tag)
 
-                videosource = tdb.get_type()
                 short_title, seasonepisode, seasonmatch = tdb.get_short_title()
-
-                tdb.login(videosource, seasonepisode, seasonmatch, short_title)
+                videosource, videosource2 = tdb.get_type()
+                tdb.login(videosource, seasonepisode, seasonmatch, short_title, videosource2,downloadsource)
