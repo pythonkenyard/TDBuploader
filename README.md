@@ -57,13 +57,15 @@ torrents are output to the /torrent subfolder.
 14. Support for upload to BHD (Current primary focus)
 15. Automatic IMDB/TMDB/TVDB checking
 16. Tracker selection (when multiple ask which to be used)
-17. Support for upload to UHDB
-18. Support direct file/folder input from cmd line
-19. Support for upload to PHD
-20. Torrent renaming needs some improvements
-21. Hashing user/pw
-22. Support for full disks
-23. 
+17. Rework the submitting option
+18. Support direct torrent injection into qbittorrent (with file/folder location?)
+19. Support for upload to UHDB
+20. Support direct file/folder input from cmd line
+21. Support for upload to PHD
+22. Torrent renaming needs some improvements
+23. Hashing user/pw
+24. Support for full disks (screens,mediainfo)
+25. 
   
   
 # General repository requirements yet to be completed  
