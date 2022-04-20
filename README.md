@@ -85,6 +85,7 @@ torrents are output to the /torrent subfolder.
 28. where title cannot be parsed, implement check to try parsing file for same.
 29. Create installable version via Pip or git.
 30. Suppot for Digitalcore
+31. Screenshots need to be updated. list all values, pick largest, grab screens. dump first screen as if often has issues. add setting to each site with amount to upload
   
 # General repository requirements yet to be completed  
 Validate/check requirements list  
