@@ -3,6 +3,7 @@ from tkinter import *
 from os.path import isfile, join
 from os import listdir
 import os
+import subprocess
 import cv2
 import json
 from pathlib import Path
@@ -15,10 +16,25 @@ import trackers.torrentdb as torrentdb
 with open("config/config.yaml", 'r') as stream:
     cfg = yaml.safe_load(stream)
 
-#todo - update media parsing to name file.
-#todo - check against tvdb/tmdb for name?
-#todo - photo upload to external site?
-#todo - update tracker should select an existing one and ask which settings to modify or delete.
+try:
+    with open("config/chrome.yaml", 'r') as stream2:
+        chromecfg = yaml.safe_load(stream2)
+except:
+    os.system("cls")
+    print("\nWARNING! no chrome config fileor Broken config file.\nPlease download the lastest config file to config/chrome.yaml")
+    time.sleep(3)
+
+try:
+    with open("config/qbit.yaml", 'r') as stream3:
+        qbitcfg = yaml.safe_load(stream3)
+except:
+    qbitcfg = " "
+    os.system("cls")
+    print("\nWARNING! no qbittorrent config file or Broken config file\nPlease download the lastest config file to config/chrome.yaml")
+    time.sleep(3)
+
+#todo - media parsing additional checks for title naming.
+#todo - check against imdb/tvdb/tmdb for short_title
 
 uploadtrackers = ["bhd","beyondhd","tdb","torrentdb"]
 """requirements for new tracker
@@ -36,14 +52,17 @@ def runsetup(cfg):
         os.system("cls")
         setupselection = input(
             "Please select the update you wish to make\n \
-(1)Add new tracker.\n \
-(2)Edit tracker config\n \
-(3)Remove a tracker\n \
-(4)Add additional websites to sourcelist (In development)\n \
-(5)List trackers and config.\n \
-(z)Return to MAIN MENU.\n \
+Trackers:\n\
+(1)Add new tracker.\n\
+(2)Edit tracker config\n\
+(3)Remove a tracker\n\
+(4)Show Existing tracker config.\n\n \
+Other options:\n\
+(5)Add additional websites to sourcelist:\n\
+(6)Chromedriver settings (torrent download/profile)\n\
+(7)Qbittorrent settings\n\n\
+(z)Return to MAIN MENU.\n\
 -->Selection: ")
-        """(6)Enable/Disable CLI mode for file selection(In development)\n """
         os.system("cls")
         if setupselection == "1" or setupselection == "2":
             if setupselection == "2":
@@ -80,19 +99,19 @@ def runsetup(cfg):
                     setupselection = "0"
             else:
                 print(f"note supported trackers for auto upload\n{uploadtrackers}")
-                trackername = input("Please name your tracker e.g. 'torrentdb': ")
+                trackername = input("\nPlease name your tracker e.g. 'torrentdb': ")
                 #tracker name defined above, trackernumber if updating
                 announce = input("Please enter your announce url: ")
 
                 autotorrent = True
 
-                autorename = input("[future feature] Do you want torrents to be renamed e.g (1080p H.264 AAC 2.0 etc) [y/n]: ")
-                if autorename == "y" or autorename == "Y":
+                autorename = input("[future feature] Do you want Title to be automatically generated e.g (1080p H.264 AAC 2.0 etc) [y/n]: ")
+                if autorename.lower() == "y":
                     autorename == True
                 else:
                     autorename == False
 
-                if any (word in trackername.lower() for word in ["torrentdb", "tdb", "beyondhd", "bhd"]):
+                if any (word in trackername.lower() for word in uploadtrackers):
                     autoupload = input("Would you like to enable auto upload[y/n]")
                     if autoupload.lower() == "y":
                         autoupload = True
@@ -113,7 +132,8 @@ def runsetup(cfg):
                     usr = "n/a"
                     pwd = "n/a"
                     releasegrp = ""
-                    print("Autoupload set to false. Only supported for tracker 'torrentdb'")
+                    apikey = ""
+                    print(f"Autoupload set to false. Only supported for trackers {uploadtrackers}")
                     autoupload = False
                 #prep to update config file
                 screenshots = input("How many screenshots are required (note future feature): ")
@@ -134,26 +154,131 @@ def runsetup(cfg):
             with open("config/config.yaml", 'r') as stream:
                 cfg = yaml.safe_load(stream)
 
-
         #update trackers. Ideally create a list here and selection based on this.
         elif setupselection == "3":
-            print("Possible trackers to remove:"+str(list(cfg["tracker"].keys())))
-            trackername = input("Please name your tracker to delete or exit to return to settings: ")
-            for i in list(cfg["tracker"].keys()):
-                if i == trackername:
-                    del cfg["tracker"][i]
-                    print("Removed "+i)
-            with open('config/config.yaml','w') as yamlfile:
-                yaml.safe_dump(cfg, yamlfile)
-        elif setupselection == "5":
+            while setupselection =="3":
+                ("Possible trackers to remove:")
+                deltracker = 1
+                trackerkey = []
+                for i in cfg["tracker"].keys():
+                    print(f"({deltracker}) {i}")
+                    trackerkey.append(i)
+                    deltracker +=1
+                print("(z) Return to previous menu\n")
+                deltracker -=1
+                trackernum = input(f"Please select 1-{deltracker} for which to delete: ")
+                if trackernum.lower() == "z":
+                    setupselection = "0"
+                elif int(trackernum) <= deltracker:
+                    trackernum = int(trackernum)-1
+                    chrome_update = trackerkey[trackernum]
+                    del cfg["tracker"][chrome_update]
+                    print("\nDeleted")
+                    time.sleep(1)
+                    with open('config/config.yaml','w') as yamlfile:
+                        yaml.safe_dump(cfg, yamlfile)
+                    yamlfile.close()
+                else:
+                    os.system("cls")
+                    print("Input Error, please try again\n")
+
+        elif setupselection == "4":
             print("\nCURRENT ACTIVE TRACKERS:")
             for i in cfg["tracker"].keys():
                 print("\nTracker: "+str(i))
                 for j in cfg["tracker"][i].keys():
                     print(str(j) + " : "+str(cfg["tracker"][i][j]))
-            time.sleep(3)
-            print("\n\n")
-    setupselection = 0
+            input("\nPress any key to exit")
+
+        elif setupselection == "5":
+            while setupselection == "5":
+                os.system("cls")
+                print("\nCurrent source sites:")
+                sources = 1
+                for i in cfg["sourcelist"]:
+                    print(f"({sources}) {i}")
+                    sources += 1
+                source_action = input(
+"what would you like to do\n\
+(1)Add new source.\n\
+(2)Remove a source\n\
+(z)Return to previous menu\n\
+Selection: ")
+                if source_action == "1":
+                    source_add = input("\nInput exactly how your source appears in file and should appear on tracker e.g. 'AMZN'\ninput: ")
+                    cfg["sourcelist"].append(source_add)
+                elif source_action == "2":
+                    sources -=1
+                    source_remove = input(f"\nSelect item to be removed from 1-{sources}: ")
+                    source_remove = int(source_remove)-1
+                    del cfg["sourcelist"][source_remove]
+                elif source_action.lower() == "z":
+                    setupselection = "0"
+                else:
+                    print("incorrect input")
+            with open('config/config.yaml','w') as yamlfile:
+                yaml.safe_dump(cfg, yamlfile)
+                print("sourcelist updated")
+                yamlfile.close()
+            #reload config
+            with open("config/config.yaml", 'r') as stream:
+                cfg = yaml.safe_load(stream)
+
+        elif setupselection == "6":
+            while setupselection == "6":
+                os.system("cls")
+                sources = 1
+                print("Possible options")
+                chromecfgkeylist = []
+                for i in chromecfg.keys():
+                    j = chromecfg[i]
+                    print(f"({sources}) {i} - {j}")
+                    sources+=1
+                    chromecfgkeylist.append(i)
+                print("(z)Return to menu\n")
+                sources -=1
+                chrome_option = input(f"Select 1-{sources} to update: ")
+
+                if chrome_option.lower() == "z":
+                    setupselection = "0"
+                elif int(chrome_option) <= sources:
+                    chrome_option = int(chrome_option)-1
+                    chrome_update = chromecfgkeylist[chrome_option]
+                    chromecfg[chrome_update] = input(f"Enter new value for setting: ")
+                    with open('config/chrome.yaml','w') as yamlfile:
+                        yaml.safe_dump(chromecfg, yamlfile)
+                    yamlfile.close()
+                else:
+                    input("Input Error, please try again\n")
+
+        elif setupselection == "7":
+            while setupselection == "7":
+                os.system("cls")
+                sources = 1
+                print("Possible options")
+                cfgkeylist = []
+                for i in qbitcfg.keys():
+                    j = qbitcfg[i]
+                    print(f"({sources}) {i} - {j}")
+                    sources+=1
+                    cfgkeylist.append(i)
+                print("(z)Return to menu\n")
+                sources -=1
+                qbit_option = input(f"Select 1-{sources} to update: ")
+
+                if qbit_option.lower() == "z":
+                    setupselection = "0"
+                elif int(qbit_option) <= sources:
+                    qbit_option = int(qbit_option)-1
+                    qbit_update = cfgkeylist[qbit_option]
+                    qbitcfg[qbit_update] = input(f"Enter new value for setting: ")
+                    with open('config/qbit.yaml','w') as yamlfile:
+                        yaml.safe_dump(qbitcfg, yamlfile)
+                    yamlfile.close()
+                else:
+                    input("Input Error, please try again\n")
+
+    setupselection = "0"
     return cfg, setupselection
 
 
@@ -166,19 +291,22 @@ def selectfolder(selection, cfg):
         os.system("cls")
         selection = str(selection)
         while selection == "0" or selection == "5":
+            os.system("cls")
             root = Tk()
             root.withdraw()
             if selection == "0" or selection == "5":
                 selection = input(
-            "Please select your upload type from 1-4 or enter setup\n\n\
-Files:\n\
+            "Please select your upload type from 1-4 or enter setup\n\n \
+File(s) Upload:\n\
 (1)Single file.\n\
-(2)Multiple files as multiple separate torrents\n\n\
-Folders:\n\
+(2)Multiple files as multiple separate torrents (Select folder containing files)\n\n \
+Folder(s) Upload:\n\
 (3)Single Folder e.g. Series or Season pack\n\
-(4)Multiple folder uploads as multiple torrents e.g. Mass movie upload (select parent directory)\n\n\
-(5)Enter Setup.\n\n\
-(z)Exit.\n\
+(4)Multiple folder uploads as multiple separate torrents e.g. Mass movie upload (select folder containing folders)\n\n \
+Options:\n\
+(5)Enter Setup.\n\
+(6)Temporarily disable a tracker for this session\n\n\
+(z)Quit.\n\
  -->Selection: ")
             try:
                 if len(list(cfg["tracker"].keys())) >0:
@@ -190,17 +318,41 @@ Folders:\n\
                 elif selection == "1":
                     print(trackerlist)
                     folder_selected = filedialog.askopenfilename()
-
                 elif selection == "2" or selection =="3" or selection =="4":
                     print(trackerlist)
                     folder_selected = filedialog.askdirectory()
-
+                elif selection == "6":
+                    while selection =="6":
+                        print("\nPossible trackers to Disable:")
+                        deltracker = 1
+                        trackerkey = []
+                        for i in cfg["tracker"].keys():
+                            print(f"({deltracker}) {i}")
+                            trackerkey.append(i)
+                            deltracker +=1
+                        print("(z) Return to previous menu\n\n"\
+                             "NOTE: DO NOT EDIT SETTINGS AFTER DISABLING A TRACKER OR IT WILL BE PERMANENT!!")
+                        deltracker -=1
+                        trackernum = input(f"Please select 1-{deltracker} for which to Disable: ")
+                        if trackernum.lower() == "z":
+                            selection = "0"
+                        elif int(trackernum) <= deltracker:
+                            trackernum = int(trackernum)-1
+                            chrome_update = trackerkey[trackernum]
+                            del cfg["tracker"][chrome_update]
+                            os.system("cls")
+                            print(f"\nDisabled {chrome_update}")
+                            time.sleep(1)
+                        else:
+                            os.system("cls")
+                            print("Input Error, please try again\n")
                 elif selection == "z":
                     print("Exiting")
                     return "none",selection, cfg
                 else:
                     print("Incorrect selection. Please select 1-6")
                     selection = "0"
+
             except:
                 print("No folder selected")
                 selection = "0"
@@ -321,8 +473,42 @@ class File:
         self.name = self.folloc[self.startdigit+1:len(self.folloc)]
         self.directory = self.folloc[0:self.startdigit]
     
+def add_torrent_check(chromecfg):
+    torrentdirectory= chromecfg["downloadlocation"]
+    pretorrentlist = os.listdir(torrentdirectory)
+    return pretorrentlist
 
-def createtorrent(folloc, selection):
+def add_torrent(pretorrentlist, chromecfg,qbitcfg,folloc):
+    #compare torrent list to list before downloading.
+    torrentdirectory= chromecfg["downloadlocation"]
+    posttorrentlist = os.listdir(torrentdirectory)
+    setdifference = set(posttorrentlist) - set(pretorrentlist)
+    for e in setdifference:
+        newtorrent = e
+    print(f"New torrent is {newtorrent}")
+    newtorrentlocation=f"{torrentdirectory}/{newtorrent}"
+
+    #load qbitlocation from settings
+    qbitlocation = qbitcfg["Qbittorrentlocation"]
+
+    #format true or false for adding paused
+    autostart = qbitcfg["AddPaused"]
+    autostart = str(autostart)
+    autostart = autostart.lower()
+
+    #files directory
+    path = Path(folloc)
+    fileslocation = path.parent.absolute()
+    print(str(fileslocation))
+    #inject
+    try:
+        print(fr'"{qbitlocation}" "{newtorrentlocation}" --add-paused={autostart} "--save-path={fileslocation}"')
+        subprocess.check_call([qbitlocation, newtorrentlocation, f"--add-paused={autostart}", f"--save-path={fileslocation}"])
+    except:
+        print("error issuing above command")
+        time.sleep(10)
+
+def createtorrent(folloc, selection, cfg):
     folloc = folloc
     selection = selection
 
@@ -468,7 +654,7 @@ def createtorrent(folloc, selection):
 
     print("Torrent(s) created in "+str(newdir))
 
-
+    time.sleep(2)
     def check_source(title,sourcelist):
         matching = ""
         matching = [s for s in sourcelist if s in title]
@@ -479,7 +665,7 @@ def createtorrent(folloc, selection):
 
     downloadsource = check_source(torrentname,cfg["sourcelist"])
     print(f"source site determined as {downloadsource}")
-    time.sleep(5)
+    time.sleep(1)
     if len(uploadlist) >0:
         print("Running autoupload for:")
         #print(str(uploadlist))
@@ -500,8 +686,27 @@ def createtorrent(folloc, selection):
                 tag = cfg["tracker"][y[0]]["releasegrp"]
 
                 y = {y[0]:y[1]} #convert tracker and torrent location to dict
+
                 tdb = torrentdb.tdb(y,screenshots, remainder, duration, title_height, audioformat,videoformat, media_info,usr,pwd,tag)
 
                 short_title, seasonepisode, seasonmatch = tdb.get_short_title()
                 videosource, videosource2 = tdb.get_type()
-                tdb.login(videosource, seasonepisode, seasonmatch, short_title, videosource2,downloadsource)
+
+                #prechecks for qbittorrent auto upload enabled
+
+                try:
+                    qbittorrent = qbitcfg["Enabled"]
+                except:
+                    qbittorrent = False
+                if qbittorrent:
+                    pretorrentlist = add_torrent_check(chromecfg)
+                    print(f"torrent adding to qbittorrent is set as {qbittorrent}")
+                else:
+                    print("Automatic torrent adding to qbittorrent disabled. to enable it change qbittorrent->enabled to 'true'")
+
+                tdb.login(videosource, seasonepisode, seasonmatch, short_title, videosource2,downloadsource,chromecfg)
+
+                if qbittorrent:
+                    add_torrent(pretorrentlist, chromecfg,qbitcfg,folloc)
+                    print("Torrent added to Qbittorrent")
+                    time.sleep(2)
