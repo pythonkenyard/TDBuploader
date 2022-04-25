@@ -25,7 +25,7 @@ class tdb(tracker):
         self.torrentlocation = uploadlist[1]
 
 
-    def login(self, videosource, seasonepisode, seasonmatch, short_title, videosource2,downloadsource,chromecfg):
+    def login(self, videosource, seasonepisode, seasonmatch, short_title, videosource2,downloadsource,chromecfg,scrn):
 
         videosource = videosource
         movchoice = {
@@ -54,7 +54,6 @@ class tdb(tracker):
         options = webdriver.ChromeOptions()
         options.add_argument('--no-sandbox')
         options.add_argument('--ignore-ssl-errors')
-
 
         try:
             chromeprofile = chromecfg['profilename']
@@ -91,7 +90,9 @@ class tdb(tracker):
 
         #LOGIN
         try:
-            driver.find_element(By.NAME, 'screenshots[]').send_keys(cwd+screenshot)
+            #check if we are on the upload page already
+            driver.find_element(By.NAME, 'screenshots[]')
+            print("ready to upload")
         except:
             try:
                 username_input = driver.find_element(By.NAME, "username")
@@ -121,14 +122,27 @@ class tdb(tracker):
             except:
                 pass
         #DATA INPUT
-
         error = " "
-        print("Uploading torrent")
+
+        scrn = int(scrn)
+        self.screenshots = self.screenshots[:scrn]
+        try:
+            for screenshot in self.screenshots:
+                #print(str(screenshot))
+                #screenshot=screenshot[1:]
+                driver.find_element(By.NAME, 'screenshots[]').send_keys(screenshot)
+                time.sleep(0.1)
+            print("uploaded screenshots")
+        except:
+            error = error +"screenshot upload"
+            time.sleep(0.2)
+
         #torrent upload
+        print("Uploading torrent")
         try:
             torrent_upload = driver.find_element(By.XPATH, "//*[@type='file']")
             torrent_upload.send_keys(self.torrentlocation)
-            time.sleep(0.2)
+            time.sleep(0.3)
         except:
             print("not able to upload torrent")
             error = error +"torrent upload"
@@ -152,21 +166,7 @@ class tdb(tracker):
                 mediainfoinput.send_keys(self.mediainfo)
             except:
                 error = error + " and media info"
-        time.sleep(0.1)
-
-        #screenshot upload
-
-        try:
-            for screenshot in self.screenshots:
-                #print(str(screenshot))
-                cwd=os.getcwd()
-                screenshot=screenshot[1:]
-                driver.find_element(By.NAME, 'screenshots[]').send_keys(cwd+screenshot)
-                time.sleep(0.1)
-            print("uploaded screenshots")
-        except:
-            error = error +"screenshot upload"
-            time.sleep(0.2)
+        time.sleep(0.2)
 
         #category and type
         print(f"assigning category {videosource}")
@@ -190,7 +190,11 @@ class tdb(tracker):
 
                 selection = movchoice[videosource]
                 print("selection is "+str(selection))
-                driver.find_element(By.XPATH,'//option[@value="'+selection+'"]').click()
+                optionsoverlap = driver.find_elements(By.XPATH,'//option[@value="'+selection+'"]')
+                try:
+                    optionsoverlap[1].click()
+                except:
+                    optionsoverlap[0].click()
                 print("selected category "+str(selection))
             elif int(float(self.duration)) <=3682600:
                 print("Assigning tv show. Please correct if short movie")
@@ -314,26 +318,21 @@ class tdb(tracker):
             print("submitting")
             submitbuttons = driver.find_element(By.XPATH, "//*[@type='submit']")
             submitbuttons.send_keys(" ")
-            time.sleep(0.5)
-            submitbuttons.send_keys(" ")
-            print("Submitted")
-
 
         except:
             print("skipping first step")
             pass
         try:
-            print("grabbing torrent")
-            WebDriverWait(driver, 50).until(EC.presence_of_element_located((By.XPATH, "//*[@class='bg-clip-border rounded text-white text-center font-medium bg-blue-600 hover:bg-blue-500 text-sm cursor-pointer px-3 py-2']")))
-            time.sleep(1)
-            print("downloading torrent")
+            driver.implicitly_wait(20)
             downloadtorrent = driver.find_elements(By.XPATH, "//*[@class='bg-clip-border rounded text-white text-center font-medium bg-blue-600 hover:bg-blue-500 text-sm cursor-pointer px-3 py-2']")
             downloadtorrent[1].click()
-            time.sleep(2)
-            print("Upload complete")
+            time.sleep(3)
+            print("grabbed torrent")
+
         except:
             print("no downloadbutton found")
             pass
 
+        print("Uploaded")
         driver.close()
         driver.quit()
