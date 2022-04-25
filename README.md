@@ -48,12 +48,30 @@ torrents are output to the /torrent subfolder.
 7. Save torrent to /torrents.
 8. Settings menu to add or remove trackers.
 9. Autoupload is in initial stages
-10. Torrent renaming is automated for most files
+10. Naming is automated for most uploads
 11. File recognition working.
-12. Add support for tagging uploads (Currently everything is configured to use my release tag for tdb
+12. Add support for tagging uploads 
 13. Season and Episode selection based on file name for tdb
+14. BHD initial support
     
 #Change History (yyyy.mm.dd)   
+2022.04.25
+-Added support for BHD posting to drafts. 
+  Currently WEB-DL and WEBRip supported.
+  MediaInfo not fully parsing correctly on initial tests.
+  Main item missing is tmdb/imdb id
+-imgbox photo upload supported as required for BHD
+-fixed a bug where WEB-DL Movies were assigning to incorrect category on TDB
+-Added support for number of screenshots. Still in Beta. Currently changes only come into effect after a restart
+-Optimised uploading with webdriver wait. still needs some more work but for torrent uploads there is no longer issues where it times out.
+-Updated fileparsing for some additional improvements
+-Removed PW/user requirement for BHD. 
+-Added note that PW/user isnt needed for TDB when using chrome profile for cookies.
+-reworked a lot of strings into F strings for cleaner code
+-added config for disabling autoupload 
+-initiated config for disabling automatic torrent creation. will allow manual user input each time
+
+
 2022.04.20    
 -Improved settings for removing/editing info. Selections can be done numerically for everything.
 -Customisable settings for where to save downloaded torrents.   
@@ -68,24 +86,22 @@ torrents are output to the /torrent subfolder.
 
 
 # To do:  
-14. Support for upload to BHD (Current primary focus)
 
 16. Automatic IMDB/TMDB/TVDB checking
 17. Tracker selection (when multiple, ask which to be used)
-18. Rework the submitting option
-19. Support direct torrent injection into qbittorrent (with file/folder location?)
+
 20. Support for upload to UHDB
 21. Support direct file/folder input from cmd line
 22. Support for upload to PHD
 23. Title naming needs some improvements especially for Hevc and X265 files
-24. Hashing user/pw (or remove them fully and use chrome config?)
+
 25. Support for full disks (screens,mediainfo)
-26. Add Setting to remove screening check for uploads. (needs 16)
+26. Add Setting to remove screening check for uploads. (needs imdb/tmdb input)
 27. Title naming to include file parsing for e.g. criterion collection, extended edition etc..
 28. where title cannot be parsed, implement check to try parsing file for same.
 29. Create installable version via Pip or git.
 30. Suppot for Digitalcore
-31. Screenshots need to be updated. list all values, pick largest, grab screens. dump first screen as if often has issues. add setting to each site with amount to upload
+32. Add config for BHD to allow direct posting instead of drafts only. (requires imdb/tmdb input)
   
 # General repository requirements yet to be completed  
 Validate/check requirements list  
