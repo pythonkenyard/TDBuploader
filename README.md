@@ -55,23 +55,23 @@ torrents are output to the /torrent subfolder.
 14. BHD initial support
     
 #Change History (yyyy.mm.dd)   
-2022.04.25
--Added support for BHD posting to drafts. 
-  Currently WEB-DL and WEBRip supported.
-  MediaInfo not fully parsing correctly on initial tests.
-  Main item missing is tmdb/imdb id
--imgbox photo upload supported as required for BHD
--fixed a bug where WEB-DL Movies were assigning to incorrect category on TDB
--Added support for number of screenshots. Still in Beta. Currently changes only come into effect after a restart
--Optimised uploading with webdriver wait. still needs some more work but for torrent uploads there is no longer issues where it times out.
--Updated fileparsing for some additional improvements
--Removed PW/user requirement for BHD. 
--Added note that PW/user isnt needed for TDB when using chrome profile for cookies.
--reworked a lot of strings into F strings for cleaner code
--added config for disabling autoupload 
--initiated config for disabling automatic torrent creation. will allow manual user input each time
+2022.04.25   
+-Added support for BHD posting to drafts.    
+  Currently WEB-DL and WEBRip supported.   
+  MediaInfo not fully parsing correctly on initial tests.   
+  Main item missing is tmdb/imdb id   
+-imgbox photo upload supported as required for BHD   
+-fixed a bug where WEB-DL Movies were assigning to incorrect category on TDB   
+-Added support for number of screenshots. Still in Beta. Currently changes only come into effect after a restart   
+-Optimised uploading with webdriver wait. still needs some more work but for torrent uploads there is no longer issues where it times out.   
+-Updated fileparsing for some additional improvements   
+-Removed PW/user requirement for BHD.    
+-Added note that PW/user isnt needed for TDB when using chrome profile for cookies.   
+-reworked a lot of strings into F strings for cleaner code   
+-added config for disabling autoupload    
+-initiated config for disabling automatic torrent creation. will allow manual user input each time   
 
-
+   
 2022.04.20    
 -Improved settings for removing/editing info. Selections can be done numerically for everything.
 -Customisable settings for where to save downloaded torrents.   
