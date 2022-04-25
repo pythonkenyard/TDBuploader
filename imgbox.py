@@ -5,8 +5,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.select import Select
-
-
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 class imgbox():
 
@@ -49,7 +49,7 @@ class imgbox():
         try:
             driver.find_element(By.XPATH, "//*[@data-id='dropdown-content-type']").click()
             time.sleep(0.2)
-            #print("selecting thumbnail type1")
+            print("selecting thumbnail type1")
             driver.find_element(By.XPATH, "//*[@rel='1']").click()
             time.sleep(0.2)
         except:
@@ -58,7 +58,7 @@ class imgbox():
         try:
             driver.find_element(By.XPATH, "//*[@data-id='thumbnail-option']").click()
             time.sleep(0.2)
-            #print("selecting thumbnail type1")
+            print("selecting thumbnail type1")
             driver.find_element(By.XPATH, "//*[@rel='13']").click()
             time.sleep(0.2)
         except:
@@ -69,9 +69,18 @@ class imgbox():
         buttons[2].click()
         time.sleep(0.2)
 
-        print("started upload..")
+        print("started Screenshot upload to Imgbox.. Please allow ~6 seconds per screenshot")
         driver.find_element(By.XPATH, "//*[@id='fake-submit-button']").click()
-
+        """try:
+            WebdriverWait(driver, 600).until(expected_conditions.presence_of_element_located((By.XPATH, "//*[@id='code-bb-thumb']")))
+        except:
+            print("failed waiting")
+            try:
+                driver.find_element(By.XPATH, "//*[@id='fake-submit-button']").click()
+                driver.implicitly_wait(10)
+            except:
+                driver.implicitly_wait(10)"""
+        driver.implicitly_wait(600)
         bbcode = driver.find_element(By.XPATH, "//*[@id='code-bb-thumb']")
         try:
             print(f"link to images\n{bbcode.text}")
