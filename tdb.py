@@ -11,7 +11,7 @@ from pymediainfo import MediaInfo
 import yaml
 import time
 import trackers.torrentdb as torrentdb
-
+import trackers.bhd as bhd
 
 with open("config/config.yaml", 'r') as stream:
     cfg = yaml.safe_load(stream)
@@ -103,7 +103,11 @@ Other options:\n\
                 #tracker name defined above, trackernumber if updating
                 announce = input("Please enter your announce url: ")
 
-                autotorrent = True
+                autotorrent = input("[future feature] Do you want to manually confirm whether or not to create torrents\nfor this tracker each time you are running (note recommended 'n'): ")
+                if autotorrent.lower() == "y":
+                    autotorrent == True
+                else:
+                    autotorrent == False
 
                 autorename = input("[future feature] Do you want Title to be automatically generated e.g (1080p H.264 AAC 2.0 etc) [y/n]: ")
                 if autorename.lower() == "y":
@@ -115,25 +119,29 @@ Other options:\n\
                     autoupload = input("Would you like to enable auto upload[y/n]")
                     if autoupload.lower() == "y":
                         autoupload = True
-                        usr = str(input("Please enter your login name: "))
-                        pwd = str(input("Please enter your password: "))
                         releasegrp = str(input("Input your release group e.g. '-Ntb'"))
                         if len(releasegrp) == 0:
                             releasegrp = "-NoGrp"
                         if trackername.lower() == "beyondhd" or trackername.lower() == "bhd":
                             apikey = input("Please enter your api key: ")
+                            usr = "N/A"
+                            pwd = "N/A"
                         else:
-                            apikey = ""
+                            print("NOTE USER/PASS IS NOT REQUIRED IF YOU CONFIGURE CHROME PROFILE")
+                            usr = str(input("Please enter your login name: "))
+                            pwd = str(input("Please enter your password: "))
+                            apikey = "N/A"
                     else:
                         autoupload = False
-                        usr = "n/a"
-                        pwd = "n/a"
+                        usr = "N/A"
+                        pwd = "N/A"
+                        apikey = "N/A"
                 else:
-                    usr = "n/a"
-                    pwd = "n/a"
+                    usr = "N/A"
+                    pwd = "N/A"
                     releasegrp = ""
-                    apikey = ""
-                    print(f"Autoupload set to false. Only supported for trackers {uploadtrackers}")
+                    apikey = "N/A"
+                    print(f"Autoupload to tracker set to false.\nNote it's Only supported for trackers {uploadtrackers}")
                     autoupload = False
                 #prep to update config file
                 screenshots = input("How many screenshots are required (note future feature): ")
@@ -288,10 +296,10 @@ def selectfolder(selection, cfg):
     loop = True
     while loop:
         folder_selected = ""
-        os.system("cls")
+        #os.system("cls")
         selection = str(selection)
         while selection == "0" or selection == "5":
-            os.system("cls")
+            #os.system("cls")
             root = Tk()
             root.withdraw()
             if selection == "0" or selection == "5":
@@ -373,7 +381,7 @@ def get_video_id(mediainfo):
 
         if track.format == "AVC":
             if track.encoding_settings:
-                return "H.264"
+                return "x264"
             return "H.264"
         elif track.format == "HEVC":
             if track.commercial_name == "HDR10" and track.color_primaries:
@@ -453,6 +461,7 @@ def get_audio_id(mediainfo):
         if "Atmos" in track.commercial_name
         else f"{audioCodec}{channels}"
     )
+    
     return audio_id
 
 
@@ -512,15 +521,12 @@ def createtorrent(folloc, selection, cfg):
     folloc = folloc
     selection = selection
 
-
     #If files selected can parse directly, otherwise need to select internal files
-
-
     if selection == "1" or selection == "2":
     
         mediainfo = MediaInfo.parse(folloc)
         media_info = MediaInfo.parse(folloc, output="", full=False)  #parse media info object in text format
-
+        print("parsed media info")
         try:
             mediainfowrite = media_info.replace("\n","")
         except:
@@ -573,22 +579,22 @@ def createtorrent(folloc, selection, cfg):
     videoformat = get_video_id(mediainfo) #uses the object
     title_height, duration = get_res_type(mediainfo)
 
-    print("audioformat is "+audioformat+"   "+videoformat)
+    print("Audioformat is "+audioformat+"\nContainer is "+videoformat)
     ###create folder for torrent
     cwd = os.getcwd()
-    startdigit = folloc.rfind("/", 0, len(folloc))
+    cwd = cwd.replace("\\","/")
+    print(f"{cwd}")
+    startdigit = folloc.rfind("/", 0, len(folloc)) +1
 
     torrentname = folloc[startdigit:len(folloc)]
     print(str(torrentname))
-    newdir= cwd+"\\torrents\\"
-    mediainfodir = cwd+"\\torrents\\aamediainfo"
-    newdir = newdir+ str(torrentname)
-    print("Attempting to create "+str(newdir))
-    #need to split torrentname "/torrentname.torrent"
-    slash=torrentname[0:1]
-    remainder = torrentname[1:len(str(torrentname))]
+    newdir= f"{cwd}/torrents/{torrentname}"
+
+    mediainfodir = f"{cwd}/torrents/aamediainfo"
+
     try:
         os.mkdir(newdir)
+        print("Attempting to create "+newdir)
         #Directory for media info creation also. required once only.
         try:
             os.mkdir(mediainfodir)
@@ -597,45 +603,54 @@ def createtorrent(folloc, selection, cfg):
     except:
         print("Error. Torrent output directory already exists.. this will overwrite content...")
     uploadlist = {}
+    screenshot_summary = []
     for i in cfg["tracker"].keys():
         print("creating torrent for "+i)
-        os.system(r'torf "'+str(folloc)+'" -t '+str(cfg["tracker"][i]["announce"])+ ' -M --private --out "'+str(newdir)+str(slash)+"["+i+"] "+str(remainder)+'.torrent')
+        os.system(r'torf "'+str(folloc)+'" -t '+str(cfg["tracker"][i]["announce"])+ ' -M --private --out "'+str(newdir)+"/["+i+"] "+str(torrentname)+'.torrent')
         print("Torrent created for "+i)
         if cfg["tracker"][i]["autoupload"]:
             print("Autoupload is enabled. Upload Window will open shortly.")
-            torrent = "["+i+"] "+str(remainder)+'.torrent'
+            torrent = rf"[{i}] {torrentname}.torrent"
             if len(uploadlist) <1:
-                uploadlist = {i : str(newdir)+str(slash)+torrent}
+                uploadlist = {i : fr"{newdir}/{torrent}"}
             else:
-                uploadlist[i] = str(newdir)+str(slash)+torrent
+                uploadlist[i] = fr"{newdir}/{torrent}"
+        try:
+            screenshot_setting = cfg["tracker"][i]["screenshots"]
 
-    mediainfoutput = open(cwd+"\\torrents\\aamediainfo/"+str(torrentname)+'.txt',"w")
-    mediainfoutput2 = open(newdir+f"/{torrentname}.txt","w")
+            screenshot_summary.append(screenshot_setting)
+        except:
+            print("no screenshot setting for this tracker")
+    mediainfoutput = open(f"{cwd}/torrents/aamediainfo/{torrentname}.txt","w")
+    mediainfoutput2 = open(f"{newdir}/{torrentname}.txt","w")
     mediainfoutput.write(str(mediainfowrite))
     mediainfoutput2.write(str(mediainfowrite))
     print("torrent and mediainfo written to "+newdir+" as " +torrentname+".torrent")
-    mediainfodirectory = str(cwd)+"\\torrents\\aamediainfo/"+str(torrentname)+'.txt'
+    mediainfodirectory = rf"{cwd}/torrents/aamediainfo/{torrentname}.txt"
     mediainfoutput.close()
     mediainfoutput2.close()
     print("capturing screens")
     # frame
     frame_number = 0
+    #instantiate current total screenshots and create the list of where screenshots are stored
     screens =0
     screenshots = []
-    #todo - edit screenshots to check how many required in config.
-    #duration = cam.get(cv2.CAP_PROP_POS_MSEC)
-    #print(str(duration))
+    highestscreens = max(screenshot_summary)
     while (True):
         cam.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
         ret, frame = cam.read()
-
         if ret:
-            if screens ==5:
+            if screens > int(highestscreens):
                 break
+            elif screens == 0:
+                print("dumping first screenshot")
+                frame_number += 2500
+                screens +=1
+                pass #dump the first screenshot as it seems to have issues.
             else:
                 frame_number=frame_number+3000
                 # if video is still left continue creating images
-                name = './torrents/'+str(torrentname)+"/" + str(torrentname)+str(frame_number) + '.png'
+                name = f'{cwd}/torrents/{torrentname}/{torrentname}{frame_number}.png'
                 print('Creating...' + name)
                 screenshots.append(name)
                 # writing the extracted images
@@ -646,6 +661,8 @@ def createtorrent(folloc, selection, cfg):
                 frame_number += 2500
                 screens +=1
         else:
+            print("short file, cannot grab more screenshots")
+            time.sleep(3)
             break
 
     # Release all space and windows once done
@@ -654,7 +671,7 @@ def createtorrent(folloc, selection, cfg):
 
     print("Torrent(s) created in "+str(newdir))
 
-    time.sleep(2)
+
     def check_source(title,sourcelist):
         matching = ""
         matching = [s for s in sourcelist if s in title]
@@ -665,48 +682,59 @@ def createtorrent(folloc, selection, cfg):
 
     downloadsource = check_source(torrentname,cfg["sourcelist"])
     print(f"source site determined as {downloadsource}")
-    time.sleep(1)
-    if len(uploadlist) >0:
-        print("Running autoupload for:")
-        #print(str(uploadlist))
 
+    if len(uploadlist) >0:
         for y in uploadlist.items():
             #{tracker:torrent}, screenshots, title name, duration, height, audio format, video format
             #NOTE UPLOADLIST NEEDS TO BE REMOVED FROM POST(UPLOADLIST IF THERE ARE MULTIPLE TRACKERS
-
-            print ("uploading torrent for "+str(y[0]))
-            if y[0] == "beyondhd" or y[0] == "bhd":
-                #beyondhd = bhd.tdb(y,screenshots, remainder, duration, title_height, audioformat,videoformat, media_info,usr,pwd,tag)
-                #short_title, seasonepisode, seasonmatch = bhd.get_short_title()
-                print("soon...")
-            elif y[0] == "torrentdb" or y[0] == "tdb":
-
+            if cfg["tracker"][y[0]]["autoupload"]:
+                print ("uploading torrent for "+str(y[0]))
                 usr = cfg["tracker"][y[0]]["usr"]
                 pwd  = cfg["tracker"][y[0]]["pwd"]
                 tag = cfg["tracker"][y[0]]["releasegrp"]
+                scrn = cfg["tracker"][y[0]]["screenshots"]
+                track_loc = {y[0]:y[1]} #convert tracker and torrent location to dict
 
-                y = {y[0]:y[1]} #convert tracker and torrent location to dict
+                if y[0] == "beyondhd" or y[0] == "bhd":
+                    apikey = cfg["tracker"][y[0]]["apikey"]
+                    #beyondhd = bhd.tdb(y,screenshots, remainder, duration, title_height, audioformat,videoformat, media_info,usr,pwd,tag)
+                    #short_title, seasonepisode, seasonmatch = bhd.get_short_title()
+                    print("uploading screens...")
+                    bhd_obj = bhd.bhd(track_loc,screenshots, torrentname, duration, title_height, audioformat,videoformat, mediainfodirectory,usr,pwd,tag,apikey)
 
-                tdb = torrentdb.tdb(y,screenshots, remainder, duration, title_height, audioformat,videoformat, media_info,usr,pwd,tag)
+                    bhd_obj.post_upload(downloadsource)
 
-                short_title, seasonepisode, seasonmatch = tdb.get_short_title()
-                videosource, videosource2 = tdb.get_type()
-
-                #prechecks for qbittorrent auto upload enabled
-
-                try:
-                    qbittorrent = qbitcfg["Enabled"]
-                except:
-                    qbittorrent = False
-                if qbittorrent:
-                    pretorrentlist = add_torrent_check(chromecfg)
-                    print(f"torrent adding to qbittorrent is set as {qbittorrent}")
-                else:
-                    print("Automatic torrent adding to qbittorrent disabled. to enable it change qbittorrent->enabled to 'true'")
-
-                tdb.login(videosource, seasonepisode, seasonmatch, short_title, videosource2,downloadsource,chromecfg)
-
-                if qbittorrent:
-                    add_torrent(pretorrentlist, chromecfg,qbitcfg,folloc)
-                    print("Torrent added to Qbittorrent")
+                    print("posted upload")
                     time.sleep(2)
+
+                elif y[0] == "torrentdb" or y[0] == "tdb":
+
+                    tdb = torrentdb.tdb(track_loc,screenshots, torrentname, duration, title_height, audioformat,videoformat, media_info,usr,pwd,tag)
+
+                    short_title, seasonepisode, seasonmatch = tdb.get_short_title()
+                    videosource, videosource2 = tdb.get_type()
+
+                    #prechecks for qbittorrent auto upload enabled
+
+                    try:
+                        qbittorrent = qbitcfg["Enabled"]
+                    except:
+                        qbittorrent = False
+                    if qbittorrent:
+                        pretorrentlist = add_torrent_check(chromecfg)
+                        print(f"torrent adding to qbittorrent is set as {qbittorrent}")
+                    else:
+                        print("Automatic torrent adding to qbittorrent disabled. to enable it change qbittorrent->enabled to 'true'")
+
+                    #tdb wants x264 to be H264
+                    #if videosource=="x264":
+                    #    videosource="H.264"
+                    print(f"{videosource}, {seasonepisode}, {seasonmatch}, {short_title}, {videosource2},{downloadsource},{chromecfg},{scrn}")
+                    tdb.login(videosource, seasonepisode, seasonmatch, short_title, videosource2,downloadsource,chromecfg,scrn)
+
+                    if qbittorrent:
+                        add_torrent(pretorrentlist, chromecfg,qbitcfg,folloc)
+                        print("Torrent added to Qbittorrent")
+                        time.sleep(2)
+            else:
+                print("Autoupload not enabled for X")
