@@ -112,7 +112,7 @@ class bhd(tracker):
         #upload DATA
         files= {
             "file": (self.torrentlocation, open(self.torrentlocation,"rb")),
-            "mediainfo": (self.mediainfo, open(self.mediainfo,"rb", encoding="utf-8"))
+            "mediainfo": (self.mediainfo, open(self.mediainfo,"rb"))
         }
         datatopost= {
 
