@@ -15,17 +15,17 @@ class bhd(tracker):
         super().__init__(screenshots, remainder, duration, title_height, audioformat, videoformat, media_info )
 
         uploadlist = next(iter((uploadlist.items())) )
-        print(str(uploadlist))
+        #print(str(uploadlist))
         self.screenshots =  screenshots
         self.apikey = apikey
         self.username = usr
         self.releasegrp = tag
         self.password  = pwd
         self.torrentlocation = uploadlist[1]
-        print(self.torrentlocation)
+        #print(self.torrentlocation)
         self.mediainfo = media_info
-        print(self.mediainfo)
-        time.sleep(5)
+        #print(self.mediainfo)
+        time.sleep(0.5)
 
     def generate_title(self,short_title, seasonepisode, seasonmatch, videosource, downloadsource):
         pack = "0"
@@ -77,21 +77,25 @@ class bhd(tracker):
         return name, category_id, pack, special
 
     def post_screens(self):
+        print("initiating screenshot upload")
         imagebox = imgbox(self.screenshots)
-
         bbcode = imagebox.post()
 
         return bbcode
 
-    def post_upload(self,downloadsource):
-        self.downloadsource = downloadsource
+    def post_upload(self,downloadsource, imdb_id, tmdb_id, description):
+        if (downloadsource is None):
+            print("empty")
+            self.downloadsource = None
+        else:
+            self.downloadsource = downloadsource
 
         bbcode = self.post_screens()
-        bbcode = bbcode + "\n\nTorrent creation and Upload supported by TDBuploader\nhttps://github.com/pythonkenyard/TDBuploader"
-        tmdb_id = "1"
-        imdb_id = "1"
+        #bbcode = "disabled screenshot upload"
+        bbcode = bbcode + f"\n\n{description}\n\nTorrent creation and Upload supported by TDBuploader\nhttps://github.com/pythonkenyard/TDBuploader"
+
         self.videosource, self.videosource2 = self.get_type()
-        #print(str(self.videosource))
+        print(str(self.videosource))
         #tags
         if self.videosource.lower() == "web-dl":
             tags = "WEBDL"
@@ -110,9 +114,10 @@ class bhd(tracker):
         print(f"{self.name,} {self.category_id}, {self.pack}, {self.special}, {self.torrentlocation}, {self.mediainfo}")
 
         #upload DATA
+
         files= {
             "file": (self.torrentlocation, open(self.torrentlocation,"rb")),
-            "mediainfo": (self.mediainfo, open(self.mediainfo,"rb"))
+            "mediainfo": (self.mediainfo,open(self.mediainfo,"r", encoding='utf-8'))
         }
         datatopost= {
 
@@ -120,8 +125,8 @@ class bhd(tracker):
             "category_id": self.category_id,
             "type": self.resolution,
             "source": source,
-            "imdb_id": imdb_id,
-            "tmdb_id": tmdb_id,
+            "imdb_id": str(imdb_id),
+            "tmdb_id": str(tmdb_id),
             "description": bbcode,
             "tags": tags,
             "pack": self.pack,
