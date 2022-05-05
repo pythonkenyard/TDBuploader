@@ -1,7 +1,6 @@
 import re
 import os
 
-
 class tracker():
 
     def __init__(self, screenshots, remainder, duration, title_height, audioformat, videoformat, media_info):
@@ -38,6 +37,7 @@ class tracker():
                     print("Potential Season type B found")
                 except:
                     print("cannot match season/episode")
+                    seasonmatch = ["",""]
                     pass
 
         #identify end of short title. either from it then having season info or from the end of year with bracket
@@ -86,6 +86,7 @@ class tracker():
             except:
                 pass
             print("title assumed as "+short_title)
+            print(f"{seasonepisode}, {seasonmatch}")
         except:
             print("cannot process title automatically.")
             short_title = input("Please manually input title: ")
