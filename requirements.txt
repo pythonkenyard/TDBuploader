@@ -5,4 +5,6 @@ selenium-wire
 pyaml
 pymediainfo
 pyperclip
+guessit
+cinemagoer
 git+https://github.com/rndusr/torf-cli.git
