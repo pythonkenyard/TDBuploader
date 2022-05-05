@@ -28,8 +28,8 @@ class imgbox():
 
         options.add_experimental_option("excludeSwitches", ["enable-logging"])
         driver = webdriver.Chrome(options=options)
-        driver.set_page_load_timeout(8)
-        driver.implicitly_wait(5)
+        driver.set_page_load_timeout(12)
+        driver.implicitly_wait(12)
 
         driver.get("https://imgbox.com/")
         time.sleep(0.3)
@@ -71,16 +71,7 @@ class imgbox():
 
         print("started Screenshot upload to Imgbox.. Please allow ~6 seconds per screenshot")
         driver.find_element(By.XPATH, "//*[@id='fake-submit-button']").click()
-        """try:
-            WebdriverWait(driver, 600).until(expected_conditions.presence_of_element_located((By.XPATH, "//*[@id='code-bb-thumb']")))
-        except:
-            print("failed waiting")
-            try:
-                driver.find_element(By.XPATH, "//*[@id='fake-submit-button']").click()
-                driver.implicitly_wait(10)
-            except:
-                driver.implicitly_wait(10)"""
-        driver.implicitly_wait(600)
+        WebDriverWait(driver,220).until(EC.visibility_of_element_located((By.XPATH, "//*[@id='code-bb-thumb']")))
         bbcode = driver.find_element(By.XPATH, "//*[@id='code-bb-thumb']")
         try:
             print(f"link to images\n{bbcode.text}")
