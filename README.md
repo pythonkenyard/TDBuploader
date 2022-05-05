@@ -45,7 +45,7 @@ torrents are output to the /torrent subfolder.
 3. Scan mp4 or mkv file using MediaInfo CLI    
 4. Pass folder to torf for torrent creation  
 5. Take argument for user announce tracker. Can link it with (4)? or manual?  
-6. Torrent piece size. Needs to take total file size and divide by 1,000. (auto supported by torf)  
+6. Torrent piece size automated.
 7. Save torrent to /torrents.
 8. Settings menu to add or remove trackers.
 9. Autoupload is in initial stages
@@ -53,9 +53,17 @@ torrents are output to the /torrent subfolder.
 11. File recognition working.
 12. Add support for tagging uploads 
 13. Season and Episode selection based on file name for tdb
-14. BHD initial support
+14. BHD support
+15. IMDB/TMDB support
     
 #Change History (yyyy.mm.dd)   
+2022.05.05   
+-Completed BHD support. resolved MediaInfo issues and added tmdb/imdb id support.
+-Added support for TMDB and IMDB lookup via guessit and cinemagoer.
+-Description in uploads now adds information from IMDB/TMDB where available.
+-Ironed out some issues with timeouts during screenshot and torrent upload + download when connection isnt strong.
+-Bugfixes around movie and full Season uploads
+
 2022.04.25   
 -Added support for BHD posting to drafts.    
   Currently WEB-DL and WEBRip supported.   
@@ -103,6 +111,10 @@ torrents are output to the /torrent subfolder.
 29. Create installable version via Pip or git.
 30. Suppot for Digitalcore
 32. Add config for BHD to allow direct posting instead of drafts only. (requires imdb/tmdb input)
+
+Known bugs
+34. Sometimes episode numbering or titles can skip some detail in tdb uploading.
+35. When Season pack is uploaded, Season number is sometimes missing from upload title. Possibly linked to filename containing letter S in the release group
   
 # General repository requirements yet to be completed  
 Validate/check requirements list  
