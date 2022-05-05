@@ -25,7 +25,7 @@ class tdb(tracker):
         self.torrentlocation = uploadlist[1]
 
 
-    def login(self, videosource, seasonepisode, seasonmatch, short_title, videosource2,downloadsource,chromecfg,scrn):
+    def login(self, videosource, seasonepisode, seasonmatch, short_title, videosource2,downloadsource,chromecfg,scrn,description):
 
         videosource = videosource
         movchoice = {
@@ -151,7 +151,7 @@ class tdb(tracker):
         #description
         try:
             text_field = driver.find_element(By.XPATH, "//*[@class='wysibb-text-editor wysibb-body']")
-            pc.copy("Torrent creation and Upload supported by TDBuploader\nhttps://github.com/pythonkenyard/TDBuploader")
+            pc.copy(f"{description}\n\nTorrent creation and Upload supported by TDBuploader.\nhttps://github.com/pythonkenyard/TDBuploader")
             text_field.send_keys(Keys.CONTROL, 'v')
             print("pasted media info")
         except:
@@ -230,9 +230,12 @@ class tdb(tracker):
         uploadtitle = driver.find_element(By.NAME, "name")
         uploadtitle.clear()
 
-        #remove "encode from naming"
+        #remove "encode from naming", Change x264 to H.264
         if videosource == "ENCODE":
             videosource = videosource2
+        print(self.format)
+        if self.format == "x264":
+            self.format = "H.264"
 
         if len(seasonepisode[2]) >0:
             print("assigning season/episode title")
@@ -314,25 +317,15 @@ class tdb(tracker):
             time.sleep(0.5)
         except:
             pass
-        try:
-            print("submitting")
-            submitbuttons = driver.find_element(By.XPATH, "//*[@type='submit']")
-            submitbuttons.send_keys(" ")
 
-        except:
-            print("skipping first step")
-            pass
-        try:
-            driver.implicitly_wait(20)
-            downloadtorrent = driver.find_elements(By.XPATH, "//*[@class='bg-clip-border rounded text-white text-center font-medium bg-blue-600 hover:bg-blue-500 text-sm cursor-pointer px-3 py-2']")
-            downloadtorrent[1].click()
-            time.sleep(3)
-            print("grabbed torrent")
-
-        except:
-            print("no downloadbutton found")
-            pass
-
-        print("Uploaded")
+        print("submitting")
+        submitbuttons = driver.find_element(By.XPATH, "//*[@type='submit']")
+        submitbuttons.send_keys(" ")
+        WebDriverWait(driver,120).until(EC.visibility_of_element_located((By.XPATH, "//*[@class='bg-clip-border rounded text-white text-center font-medium bg-blue-600 hover:bg-blue-500 text-sm cursor-pointer px-3 py-2']")))
+        downloadtorrent = driver.find_elements(By.XPATH, "//*[@class='bg-clip-border rounded text-white text-center font-medium bg-blue-600 hover:bg-blue-500 text-sm cursor-pointer px-3 py-2']")
+        time.sleep(1)
+        downloadtorrent[1].click()
+        time.sleep(2)
+        print("grabbed torrent")
         driver.close()
         driver.quit()
