@@ -3,6 +3,7 @@ opencv-python
 selenium
 selenium-wire
 pyaml
+requests
 pymediainfo
 pyperclip
 guessit
