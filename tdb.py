@@ -462,12 +462,19 @@ def get_audio_id(mediainfo):
             channels = "5.1"
     except:
         channels = "unknown"
+
+    try:
+        dual = [track for track in media_info.tracks if track.track_type == "Audio"][1]
+        if len(dual.format) >1:
+            audioCodec = "Dual Audio "+ audioCodec
+    except:
+        pass
     audio_id = (
         f"{audioCodec}{channels}.Atmos"
         if "Atmos" in track.commercial_name
         else f"{audioCodec}{channels}"
-    )
-    
+        )
+
     return audio_id
 
 class Folder:
@@ -517,7 +524,7 @@ def add_torrent(pretorrentlist, chromecfg,qbitcfg,folloc):
     #inject
     try:
         print(fr'"{qbitlocation}" "{newtorrentlocation}" --add-paused={autostart} "--save-path={fileslocation}"')
-        subprocess.check_call([qbitlocation, newtorrentlocation, f"--add-paused={autostart}", f"--save-path={fileslocation}"])
+        subprocess.check_call([qbitlocation, newtorrentlocation, f"--add-paused={autostart}", "--skip-hash-check", f"--save-path={fileslocation}"])
     except:
         print("error injecting torrent to QBITTORRENT. Check your qbittorrent location in settings is correct")
         time.sleep(10)
@@ -584,17 +591,18 @@ def tmdbtag(imdbnum,filetitle,tmdb_api_key):
             print("checking movie results")
             tmdbid = tmdbrequest["movie_results"][0]["id"]
             tmdb_desc = tmdbrequest["movie_results"][0]["overview"]
-            tvdb_type = "movie"
+            tmdb_type = "movie"
         except:
             print("checking tv results")
             tmdbid = tmdbrequest["tv_results"][0]["id"]
             tmdb_desc = tmdbrequest["tv_results"][0]["overview"]
-            tvdb_type = "tv"
+            tmdb_type = "tv"
     except:
         print(f"Failed cross-check of {filetitle} against IMDB.\nUsing direct search.")
         filetitle = filetitle.replace(" ","+")
         tmdbrequest = requests.get(url = f"https://api.themoviedb.org/3/search/movie?api_key={tmdb_api_key}&query={filetitle}").json()
-        tmdblist = [["No.","Year", "Title","tvdbid","desc"]]
+        tmdblist = [["No.","Year", "Title","tmdbid","desc"]]
+        tmdblist2 = [["No.","Year", "Title","tmdbid","desc"]]
         try:
             tmdbselection = 1
             for i in tmdbrequest["results"]:
@@ -607,7 +615,11 @@ def tmdbtag(imdbnum,filetitle,tmdb_api_key):
                 tmdblist.append([f"({tmdbselection})", year, title, id, overviewabbv])
                 tmdbselection += 1
             tvdivider = tmdbselection
+            print(str(tvdivider))
+            for row in tmdblist:
+                print("{: <4} {: <5} {: <30} {: <5} {: <40}".format(*row))
             tmdbrequest2 = requests.get(url = f"https://api.themoviedb.org/3/search/tv?api_key={tmdb_api_key}&query={filetitle}").json()
+            print("Possible tv matches")
             for i in tmdbrequest2["results"]:
                 id = i["id"]
                 title = i["name"]
@@ -616,39 +628,39 @@ def tmdbtag(imdbnum,filetitle,tmdb_api_key):
                 year = year[0:4]
                 overviewabbv = overview[:60]
                 tmdblist.append([f"({tmdbselection})",year, title, id, overviewabbv])
+                tmdblist2.append([f"({tmdbselection})",year, title, id, overviewabbv])
                 tmdbselection += 1
-            for row in tmdblist:
+            for row in tmdblist2:
                 print("{: <4} {: <5} {: <30} {: <5} {: <40}".format(*row))
             print(f"({tmdbselection}) - NO MATCH")
             if tmdbselection > 1:
-                choice = int(input(f"Select matching TMDB option 1-{tmdbselection}: ")) -1
-
+                choice = int(input(f"Select matching TMDB option 1-{tmdbselection}: "))
             else:
                 print("No matches on TMDB either.")
                 choice = 1
             if choice < tvdivider:
                 try:
+                    choice -= 1
                     tmdbid = tmdbrequest["results"][choice]["id"]
-                    tvdb_desc = tmdbrequest["results"][choice]["overview"]
-                    tvdb_type = "movie"
+                    tmdb_desc = tmdbrequest["results"][choice]["overview"]
+                    tmdb_type = "movie"
                 except:
-                    print("Error in assignment. Assigning id of 1")
-                    tmdbid = "1"
+                    print("Not possible to assign due to error")
             else:
-                choice = choice - tvdivider
+                choice-= tvdivider
                 try:
                     tmdbid = tmdbrequest2["results"][choice]["id"]
                     tmdb_desc = tmdbrequest2["results"][choice]["overview"]
-                    tvdb_type = "tv"
+                    tmdb_type = "tv"
                 except:
                     print("No TMDB picked. Assigning id of 1")
-                    tmdbid, tmdb_desc, tvdb_type = "1", "none", "none"
+                    tmdbid, tmdb_desc, tmdb_type = "1", "none", "none"
 
         except:
             print("failed getting tmdb id. is your api key correct")
-            tmdbid, tmdb_desc, tvdb_type = "1", "none", "none"
+            tmdbid, tmdb_desc, tmdb_type = "1", "none", "none"
     print(f"TMDB Id found to be {tmdbid}")
-    return tmdbid, tmdb_desc, tvdb_type
+    return tmdbid, tmdb_desc, tmdb_type
 
 def createtorrent(folloc, selection, cfg):
     folloc = folloc
