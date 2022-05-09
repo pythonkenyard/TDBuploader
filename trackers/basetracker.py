@@ -1,5 +1,6 @@
 import re
 import os
+from guessit import guessit
 
 class tracker():
 
@@ -16,81 +17,43 @@ class tracker():
 
     def get_short_title(self):
 
-        seasonmatch = re.compile("(.*).*S(\d*)\s.*")
-        seasonmatch2 = re.compile("(.*).*S(\d*)\.*")
-        seasonepisode = re.compile("(.*).*S(\d*)E(\d*)")
-        short_title= self.title
+        short_title = self.title
+        guessit(short_title)
+        guessedattributes = guessit(short_title)
         try:
-            seasonepisode = seasonepisode.match(short_title.upper()).groups()
+            short_title = guessedattributes['title']
+        except:
+            short_title = input("title undetermined automatically, please manually add movie/show title: ")
+
+        try:
+            season = guessedattributes['season']
+            season = str(season).zfill(2)
+            episode = guessedattributes['episode']
+            episode = str(episode).zfill(2)
+            seasonepisode = [short_title,season,episode]
+            seasonmatch = ["",""]
+
+            """seasonepisode = seasonepisode.match(short_title.upper()).groups()"""
             print(str(seasonepisode))
             print("Season and episode found")
         except:
             seasonepisode =["","",""]
             try:
-                seasonmatch = seasonmatch.match(short_title.upper()).groups()
+                seasonmatch = [short_title,episode]
+                """seasonmatch = seasonmatch2.findall(short_title.upper())"""
                 print(str(seasonmatch))
-                print("Season type A found")
+                print("Season type found")
             except:
-                try:
-                    seasonmatch = seasonmatch2.match(short_title.upper()).groups()
-                    print(str(seasonmatch))
-                    print("Potential Season type B found")
-                except:
-                    print("cannot match season/episode")
-                    seasonmatch = ["",""]
-                    pass
-
-        #identify end of short title. either from it then having season info or from the end of year with bracket
-        season_indicators = [" S1", ".S1", "S1", " S0",".S0", "S0", " S2", ".S2", "S2", " S3", ".S3", "S3", "Series" , " S4", ".S4", "S4", " S5", ".S5", "S5", " S6", ".S6", "S6", " S7", ".S7", "S7", " S8", ".S8", "S8", " S9", ".S9", "S9", ]
-        movie_indicators = ["0) ", "9) ","8) ", "7) ","6) ", "5) ","4) ", "3) ","2) ", "1) ",]
-        endtitle = ""
-        for i in season_indicators:
-            try:
-                endtitle = short_title.upper().index(i)
-                self.duration= 1
-                break
-            except:
+                print("cannot match season/episode")
+                seasonmatch = ["",""]
                 pass
-
-        if int(float(self.duration)) != 1:
-            print("Not a tv show")
-            for i in movie_indicators:
-                try:
-                    endtitle = short_title.index(i)
-                    self.duration= 5000000
-                    endtitle +=2
-                    print("end of title found to be "+str(i))
-                    titlenotfound = False
-                    break
-                except:
-                    titlenotfound = True
-                    pass
-        if endtitle == "":
-            try:
-                #if "." is used around year instead of ()
-                #print("Second check on possible movie naming")
-                endtitle = re.search("\.\d\d\d\d\.", short_title).start()
-                print("matched year "+ str(short_title[endtitle:endtitle+4]))
-                #moviematch = moviematch.match(short_title.upper()).groups()
-                #endtitle = short_title.index(moviematch)
-                self.duration= 5000000
-                endtitle += 5
-            except:
-                pass
-        #cut the title based on the above
         try:
-            short_title = short_title[:endtitle]
-            try:
-                #if formatting uses . update it for titling.
-                short_title = short_title.replace("."," ")
-            except:
-                pass
-            print("title assumed as "+short_title)
-            print(f"{seasonepisode}, {seasonmatch}")
+            rlsgrp = guessedattributes["release_group"]
+            print(rlsgrp)
         except:
-            print("cannot process title automatically.")
-            short_title = input("Please manually input title: ")
-        return short_title, seasonepisode, seasonmatch
+            rlsgrp = " "
+
+        return short_title, seasonepisode, seasonmatch, rlsgrp
 
     #todo add support for more formats
     def get_type(self):
