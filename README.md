@@ -40,23 +40,15 @@ Note 1st setup will ask you for your tracker and save yout tracker to file.
 torrents are output to the /torrent subfolder.   
   
 # Completed:  
-1. File/Folder Location selection  
-2. Media parser  
-3. Scan mp4 or mkv file using MediaInfo CLI    
-4. Pass folder to torf for torrent creation  
-5. Take argument for user announce tracker. Can link it with (4)? or manual?  
-6. Torrent piece size automated.
-7. Save torrent to /torrents.
-8. Settings menu to add or remove trackers.
-9. Autoupload is in initial stages
-10. Naming is automated for most uploads
-11. File recognition working.
-12. Add support for tagging uploads 
-13. Season and Episode selection based on file name for tdb
-14. BHD support
-15. IMDB/TMDB support
+Everything required for file/Folder upload.
     
-#Change History (yyyy.mm.dd)   
+**#Change History (yyyy.mm.dd)**
+
+2022.05.09
+-Season and Episode parsing moved to using Guessit for more accurate results and to resolve an issue around missing Season number for season packs.
+-Resolved timeout issue for torrent upload (finally).
+-Added naming support for DualAudio and MultiAudio when multiple language tracks in file.
+
 2022.05.05   
 -Completed BHD support. resolved MediaInfo issues and added tmdb/imdb id support.
 -Added support for TMDB and IMDB lookup via guessit and cinemagoer.
@@ -95,22 +87,26 @@ torrents are output to the /torrent subfolder.
 
 
 # To do:  
+Current Priorities.
+tvdb support and tvdb metadata scraping.
+foreign language detection for naming.
+Create installable and updateable version via Pip or git.
 
+List of planned/considered updates.
 16. Automatic IMDB/TMDB/TVDB checking
 17. Tracker selection (when multiple, ask which to be used)
-
 20. Support for upload to UHDB
-21. Support direct file/folder input from cmd line
+21. Support direct file/folder input from cmd line. Also direct parsing?
 22. Support for upload to PHD
-23. Title naming needs some improvements especially for Hevc and X265 files
-
+23. Title naming needs some improvements for Hevc and X265 files
 25. Support for full disks (screens,mediainfo)
 26. Add Setting to remove screening check for uploads. (needs imdb/tmdb input)
 27. Title naming to include file parsing for e.g. criterion collection, extended edition etc..
 28. where title cannot be parsed, implement check to try parsing file for same.
-29. Create installable version via Pip or git.
-30. Suppot for Digitalcore
+30. Suppot for Digitalcore?
 32. Add config for BHD to allow direct posting instead of drafts only. (requires imdb/tmdb input)
+33. Linux?
+34. Tidy up outputs and add logging.
 
 Known bugs
 34. Sometimes episode numbering or titles can skip some detail in tdb uploading.
