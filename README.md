@@ -88,10 +88,14 @@ Everything required for file/Folder upload.
 
 
 # To do:  
-Current Priorities.
+Current Priorities. (2020.05.10)
 tvdb support and tvdb metadata scraping.
+Update tdb to use imdb/tmdb tags.
 foreign language detection for naming.
 Create installable and updateable version via Pip or git.
+tvdb api.
+Supoprt for and quick enable/disable Anonymous mode, interactive mode, reset defaults. fully automatic mode.
+
 
 List of planned/considered updates.
 16. Automatic IMDB/TMDB/TVDB checking
@@ -109,9 +113,8 @@ List of planned/considered updates.
 33. Linux?
 34. Tidy up outputs and add logging.
 
-Known bugs
-34. Sometimes episode numbering or titles can skip some detail in tdb uploading.
-35. When Season pack is uploaded, Season number is sometimes missing from upload title. Possibly linked to filename containing letter S in the release group
+Known bugs (2020.05.10)
+34. on extremely rare occasion I have seen episode numbering or titles can skip some detail in tdb uploading. Titles fixed (10/05). item remains open until both fixed
   
 # General repository requirements yet to be completed  
 Validate/check requirements list  
