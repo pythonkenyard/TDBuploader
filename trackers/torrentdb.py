@@ -51,9 +51,13 @@ class tdb(tracker):
         """
         Chromedriver initialisation
         """
-        options = webdriver.ChromeOptions()
-        options.add_argument('--no-sandbox')
-        options.add_argument('--ignore-ssl-errors')
+        try:
+            options = webdriver.ChromeOptions()
+            options.add_argument('--no-sandbox')
+            options.add_argument('--ignore-ssl-errors')
+        except:
+            x=input("Chrome or Chromedriver not installed or up to date. Please setup Chrome, check the version number" 
+                    "and download chromedriver version to match\nChromedriver: https://chromedriver.chromium.org/downloads.")
 
         try:
             chromeprofile = chromecfg['profilename']
@@ -320,12 +324,18 @@ class tdb(tracker):
 
         print("submitting")
         submitbuttons = driver.find_element(By.XPATH, "//*[@type='submit']")
+        driver.set_page_load_timeout(100)
         submitbuttons.send_keys(" ")
-        WebDriverWait(driver,120).until(EC.visibility_of_element_located((By.XPATH, "//*[@class='bg-clip-border rounded text-white text-center font-medium bg-blue-600 hover:bg-blue-500 text-sm cursor-pointer px-3 py-2']")))
+        try:
+            downloadtorrent =  WebDriverWait(driver,100).until(EC.presence_of_element_located((By.XPATH, "//*[@class='bg-clip-border rounded text-white text-center font-medium bg-blue-600 hover:bg-blue-500 text-sm cursor-pointer px-3 py-2']")))
+            print("found download button")
+        except:
+            print("timedout. using backup wait")
+            driver.implicitly_wait(10)
+        time.sleep(0.2)
         downloadtorrent = driver.find_elements(By.XPATH, "//*[@class='bg-clip-border rounded text-white text-center font-medium bg-blue-600 hover:bg-blue-500 text-sm cursor-pointer px-3 py-2']")
-        time.sleep(1)
         downloadtorrent[1].click()
-        time.sleep(2)
+        time.sleep(1)
         print("grabbed torrent")
         driver.close()
         driver.quit()
