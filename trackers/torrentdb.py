@@ -61,7 +61,7 @@ class tdb(tracker):
 
         try:
             chromeprofile = chromecfg['profilename']
-            print(str(chromeprofile))
+            #print(str(chromeprofile))
             localappdir = os.path.join(os.getenv("LOCALAPPDATA"), f"Google\\Chrome\\User Data\\{chromeprofile}")
             options.add_argument(f"user-data-dir={localappdir}")
             print(f"using cookies profile {chromeprofile}")
@@ -237,66 +237,73 @@ class tdb(tracker):
         #remove "encode from naming", Change x264 to H.264
         if videosource == "ENCODE":
             videosource = videosource2
-        print(self.format)
-        if self.format == "x264":
+        if self.format == "x264" and videosource.upper() == "WEB-DL":
             self.format = "H.264"
-
-        if len(seasonepisode[2]) >0:
-            print("assigning season/episode title")
-            try:
-                episode_selector = driver.find_elements(By.CSS_SELECTOR,"input[type='radio'][value='0']")
-                print(len(episode_selector))
-                print("Updating selection as Season/Episode")
+        #TV SHOW TITLE
+        try:
+            print("first part")
+            if len(seasonepisode[2]) >0:
+                print("assigning season/episode title")
                 try:
-                    episode_selector[2].send_keys(" ")
-                except:
+                    episode_selector = driver.find_elements(By.CSS_SELECTOR,"input[type='radio'][value='0']")
+                    print(len(episode_selector))
+                    print("Updating selection as Season/Episode")
                     try:
-                        episode_selector[3].send_keys(" ")
+                        episode_selector[2].send_keys(" ")
                     except:
-                        print("cannot assign episode")
-                        error = error + "Season/Episode toggle"
-            except:
-                print("cannot assign episode")
-                error = error + "Season/Episode toggle"
-                pass
+                        try:
+                            episode_selector[3].send_keys(" ")
+                        except:
+                            print("cannot assign episode")
+                            error = error + "Season/Episode toggle"
+                except:
+                    print("cannot assign episode")
+                    error = error + "Season/Episode toggle"
+                    pass
 
-            try:
-                if (downloadsource is None):
-                    uploadtitle.send_keys(f"{short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
-                    print(f"Assigned title {short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
-                else:
-                    uploadtitle.send_keys(f"{short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
-                    print(f"Assigned title {short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
-            except:
-                error = error + "torrent title, "
-        elif len(seasonmatch[1])>0:
-            print("assigning season title")
-            try:
-                if (downloadsource is None):
-                    uploadtitle.send_keys(f"{short_title} S{seasonmatch[1]} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
-                    print(f"Assigned title {short_title} S{seasonmatch[1]} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
-                else:
-                    uploadtitle.send_keys(f"{short_title} S{seasonmatch[1]} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
-                print(f"Assigned title {short_title} S{seasonmatch[1]} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
-            except:
-                error = error + ",title"
-        else:
-            print("assigning movie standard title")
-            try:
-                if (downloadsource is None):
-                    uploadtitle.send_keys(f"{short_title} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
-                    print(f"Assigned title {short_title} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
-                else:
-                    uploadtitle.send_keys(f"{short_title} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
-                    print(f"Assigned title {short_title} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
-            except:
-                error = error + ",title"
-        time.sleep(0.3)
+                try:
+                    if (downloadsource is None):
+                        torrent_title = f"{short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}"
+                        print(f"Assigned title {short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
+                    else:
+                        torrent_title = f"{short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}"
+                        print(f"Assigned title {short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
 
+                except:
+                    error = error + "torrent title, "
+        #TV SEASON FULL SEASON TITLE
+        except:
+            try:
+                print("hitting here")
+                if len(seasonmatch[1])>0:
+                    print("assigning season title")
+                    try:
+                        if (downloadsource is None):
+                            torrent_title = f"{short_title} S{seasonmatch[1]} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}"
+                            print(f"Assigned title {short_title} S{seasonmatch[1]} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
+                        else:
+                            torrent_title = f"{short_title} S{seasonmatch[1]} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}"
+                        print(f"Assigned title {short_title} S{seasonmatch[1]} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
+                    except:
+                        error = error + ",title"
+            #MOVIE TITLE
+            except:
+                print("assigning movie standard title")
+                try:
+                    if (downloadsource is None):
+                        torrent_title = f"{short_title} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}"
+                        print(f"Assigned title {short_title} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
+                    else:
+                        torrent_title = f"{short_title} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}"
+                        print(f"Assigned title {short_title} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
+                except:
+                    error = error + ",title"
+            time.sleep(0.3)
+        pc.copy(torrent_title)
+        uploadtitle.send_keys(Keys.CONTROL, 'v')
         #Series/Episode update to add episode number
         if len(seasonepisode[2]) >0:
             try:
-                removedzero = seasonepisode[2]
                 #remove leading 0 if it exists
                 removedzero = seasonepisode[2].replace("0","")
                 print("removed leading zero")
