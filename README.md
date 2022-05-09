@@ -26,18 +26,19 @@ in your cmd/powershell window type
 2. py -m pip install --upgrade pip setuptools wheel
 
 ### Install python requirements
+https://adamtheautomator.com/wp-content/uploads/2021/01/ALT_D_PowerShell.gif
+you need to open cmd/powershell window **in the folder** or cd to the location then type:  
 pip install -r requirements.txt  
   
 ### Running  
-https://adamtheautomator.com/wp-content/uploads/2021/01/ALT_D_PowerShell.gif
 you need to open cmd/powershell window **in the folder** or cd to the location then type:    
 python main.py  
 
 if you get any errors such as pyperclip no such module found try running "pip install pyperclip" and then running python main.py again
 
-Note 1st setup will ask you for your tracker and save yout tracker to file.  
-  
-torrents are output to the /torrent subfolder.   
+**First RUN**
+Note 1st setup You need to setup a tracker. Setting will save for future.
+You also need to setup a torrent download folder and chrome profile if using chrome for uploading in chromecfg(option 6)
   
 # Completed:  
 Everything required for file/Folder upload.
