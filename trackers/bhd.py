@@ -108,8 +108,9 @@ class bhd(tracker):
             tags = "Encode"
         print("getting relevant info")
         #full name, category(movie or tv show)
-        self.short_title, self.seasonepisode, self.seasonmatch = self.get_short_title()
-
+        self.short_title, self.seasonepisode, self.seasonmatch,rlsgrp = self.get_short_title()
+        if len(rlsgrp)>1:
+            self.tag = rlsgrp
         self.name, self.category_id, self.pack, self.special = self.generate_title(self.short_title, self.seasonepisode, self.seasonmatch, self.videosource, self.downloadsource)
         print(f"{self.name,} {self.category_id}, {self.pack}, {self.special}, {self.torrentlocation}, {self.mediainfo}")
 
