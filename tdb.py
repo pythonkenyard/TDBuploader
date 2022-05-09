@@ -464,11 +464,16 @@ def get_audio_id(mediainfo):
         channels = "unknown"
 
     try:
-        dual = [track for track in media_info.tracks if track.track_type == "Audio"][1]
+        dual = [track for track in media_info.tracks if track.track_type == "Audio"][2]
         if len(dual.format) >1:
-            audioCodec = "Dual Audio "+ audioCodec
+            audioCodec = "MultiAudio "+ audioCodec
     except:
-        pass
+        try:
+            dual = [track for track in media_info.tracks if track.track_type == "Audio"][1]
+            if len(dual.format) >1:
+                audioCodec = "DualAudio "+ audioCodec
+        except:
+            pass
     audio_id = (
         f"{audioCodec}{channels}.Atmos"
         if "Atmos" in track.commercial_name
@@ -877,9 +882,10 @@ def createtorrent(folloc, selection, cfg):
 
                     tdb = torrentdb.tdb(track_loc,screenshots, torrentname, duration, title_height, audioformat,videoformat, mediainfowrite,usr,pwd,tag)
 
-                    short_title, seasonepisode, seasonmatch = tdb.get_short_title()
+                    short_title, seasonepisode, seasonmatch, rlsgrp = tdb.get_short_title()
                     videosource, videosource2 = tdb.get_type()
-
+                    if len(rlsgrp)>1:
+                        tdb.releasegrp = "-"+rlsgrp
                     #prechecks for qbittorrent auto upload enabled
                     try:
                         qbittorrent = qbitcfg["Enabled"]
