@@ -21,7 +21,7 @@ print("\n\
                             |_|")
 
 
-print("\nVersion 2.5.0,\nhttps://github.com/pythonkenyard/TDBuploader ")
+print("\nVersion 2.5.1,\nhttps://github.com/pythonkenyard/TDBuploader ")
 
 
 with open("config/config.yaml", 'r') as stream:
