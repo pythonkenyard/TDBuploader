@@ -136,13 +136,14 @@ Other options:\n\
                             apikey = "N/A"
                     else:
                         autoupload = False
+                        releasegrp = "-NoGrp"
                         usr = "N/A"
                         pwd = "N/A"
                         apikey = "N/A"
                 else:
                     usr = "N/A"
                     pwd = "N/A"
-                    releasegrp = ""
+                    releasegrp = "-NpGrp"
                     apikey = "N/A"
                     print(f"Autoupload to tracker set to false.\nNote it's Only supported for trackers {uploadtrackers}")
                     autoupload = False
