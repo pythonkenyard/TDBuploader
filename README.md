@@ -1,6 +1,8 @@
 #**Current working trackers**   
 -TorrentDB   
 -BeyondHD   
+    
+#Status update 2022.05.19 - Support added for TMDB, IMDB and TVDB, however I have created some issues around title naming for TDB. I need to iron out the known bugs before pushing an update.
    
 # TDBuploader  
 Script for creation of torrents, for your tracker, which also creates text file with mediainfo and 5 screenshots ready for uploading.  
@@ -46,6 +48,7 @@ You also need to setup a torrent download folder and chrome profile if using chr
   
 # Completed:  
 Everything required for file/Folder upload.
+    
     
 **#Change History (yyyy.mm.dd)**
 
