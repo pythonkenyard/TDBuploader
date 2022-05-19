@@ -14,6 +14,10 @@ Unzip and open the folder you created.
 in the explorer bar at the top of folder type "powershell" or "cmd" to open a powershell or cmd window for this folder    
 If you have already installed python and pip skip to Install python requirements.  
 
+You also need mediainfo
+https://mediaarea.net/en/MediaInfo
+
+
 ### Installing Python  
 Open powershell and type python which should bring you to the windows store for pyton install. or download from here  
 ** Note in the install windows ensure to tick the add python to environmental path option. If you miss this, reinstall and tick it**
