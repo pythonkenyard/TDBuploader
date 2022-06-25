@@ -90,7 +90,7 @@ def initial_setup():
                 if len(qbit_loc)>5:
                     qbitcfg["Enabled"] = True
                     qbitcfg["Qbittorrentlocation"] = qbit_loc
-                with open("config/qbit.yaml", 'r') as stream4:
+                with open("config/qbit.yaml", 'w') as stream4:
                     yaml.safe_dump(qbitcfg, stream4)
                 stream4.close()
         else:
