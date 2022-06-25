@@ -75,7 +75,7 @@ class tdb(tracker):
 
         try:
             downloadlocation = chromecfg['downloadlocation']
-            print(downloadlocation)
+            print(f"downloading uploaded torrent file to {downloadlocation}")
             prefs = {"download.default_directory" : f"{downloadlocation}"}
             options.add_experimental_option("prefs",prefs)
         except:
@@ -241,40 +241,42 @@ class tdb(tracker):
             self.format = "H.264"
         #TV SHOW TITLE
         try:
-            print("first part")
-            if len(seasonepisode[2]) >0:
-                print("assigning season/episode title")
+            print("checking for season-episode")
+            episode = int(seasonepisode[2])
+            episode += 1
+            print("Season and episode detected.\nAssigning season/episode title")
+            try:
+                episode_selector = driver.find_elements(By.CSS_SELECTOR,"input[type='radio'][value='0']")
+                print(len(episode_selector))
+                print("Updating selection as Season/Episode")
                 try:
-                    episode_selector = driver.find_elements(By.CSS_SELECTOR,"input[type='radio'][value='0']")
-                    print(len(episode_selector))
-                    print("Updating selection as Season/Episode")
+                    episode_selector[2].send_keys(" ")
+                except:
                     try:
-                        episode_selector[2].send_keys(" ")
+                        episode_selector[3].send_keys(" ")
                     except:
-                        try:
-                            episode_selector[3].send_keys(" ")
-                        except:
-                            print("cannot assign episode")
-                            error = error + "Season/Episode toggle"
-                except:
-                    print("cannot assign episode")
-                    error = error + "Season/Episode toggle"
-                    pass
+                        print("cannot assign episode")
+                        error = error + "Season/Episode toggle"
+            except:
+                print("cannot assign episode")
+                error = error + "Season/Episode toggle"
+                pass
 
-                try:
-                    if (downloadsource is None):
-                        torrent_title = f"{short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}"
-                        print(f"Assigned title {short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
-                    else:
-                        torrent_title = f"{short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}"
-                        print(f"Assigned title {short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
+            try:
+                if (downloadsource is None):
+                    torrent_title = f"{short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}"
+                    print(f"Assigned title {short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
+                else:
+                    torrent_title = f"{short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}"
+                    print(f"Assigned title {short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
 
-                except:
-                    error = error + "torrent title, "
+            except:
+                error = error + "torrent title, "
+
         #TV SEASON FULL SEASON TITLE
         except:
             try:
-                print("hitting here")
+                print("No season episode detected")
                 if len(seasonmatch[1])>0:
                     print("assigning season title")
                     try:
