@@ -68,7 +68,7 @@ def initial_setup():
 
                 cwd = os.getcwd()
                 download_directory = f"{cwd}/downloads"
-                print("download directory set to {download_directory}")
+                print(f"download directory set to {download_directory}")
                 tmdbapi = input("[optional] Input TMDB API key to enable metadata scraping from TMDB,IMDB,TVDB: ")
 
                 chromecfg["profilename"] = setprofile
