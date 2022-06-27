@@ -226,7 +226,7 @@ def get_tvdb(show,seasonepisode):
     return tvdb
 
 
-if name == __main__:
+if __name__ == ”__main__”:
     title = input("Input the title of series or movie you are searching for:")
     season = int(input("Input the Season number: ")).zfill(2)
     episode = int(input("Input the episode: ")).zfill(2)
