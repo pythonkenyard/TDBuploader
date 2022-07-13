@@ -102,15 +102,17 @@ tvdb support and tvdb metadata scraping.
 # To do:  
 Current Priorities. (2020.07.13)
 Need to fix season naming for bhd.
-Add episode name parsing and to file upload.
+chromedriver autoupdater which matches to chrome version. (or consider adding as a binary? will cookies work?)
+Add episode name parsing and add to file upload.
 save useful info e.g. imgbox metadata.
 When multiple trackers, copy torrent and edit the announce instead of generating a new one which should save time especially on larger torrents.
-Update tdb to use imdb/tmdb tags when available.
+Update tdb to use imdb/tmdb tags when available for uploads.
 -parse media info to check them.
--skip lookup if available
+-skip direct lookup of sites if available
 -otherwise lookup.
 -when available tdb will overwrite default and use what is available.
-Review possibility to use tdb api
+Review possibility to use tdb api.
+Dupe checker?
 foreign language detection for naming.
 Create installable and updateable version via Pip or git.
 Supoprt for and quick enable/disable Anonymous mode, interactive mode, reset defaults. fully automatic mode.
