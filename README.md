@@ -52,6 +52,10 @@ Everything required for file/Folder upload.
     
     
 **#Change History (yyyy.mm.dd)**
+2022.07.13
+Resolved issue around mediainfo not saving correctly when using non standard letters/charachters
+tvdb support and tvdb metadata scraping.
+16. Automatic IMDB/TMDB/TVDB checking
 
 2022.05.09
 -Season and Episode parsing moved to using Guessit for more accurate results and to resolve an issue around missing Season number for season packs.
@@ -96,17 +100,25 @@ Everything required for file/Folder upload.
 
 
 # To do:  
-Current Priorities. (2020.05.10)
-tvdb support and tvdb metadata scraping.
-Update tdb to use imdb/tmdb tags.
+Current Priorities. (2020.07.13)
+Need to fix season naming for bhd.
+Add episode name parsing and to file upload.
+save useful info e.g. imgbox metadata.
+When multiple trackers, copy torrent and edit the announce instead of generating a new one which should save time especially on larger torrents.
+Update tdb to use imdb/tmdb tags when available.
+-parse media info to check them.
+-skip lookup if available
+-otherwise lookup.
+-when available tdb will overwrite default and use what is available.
+Review possibility to use tdb api
 foreign language detection for naming.
 Create installable and updateable version via Pip or git.
-tvdb api.
 Supoprt for and quick enable/disable Anonymous mode, interactive mode, reset defaults. fully automatic mode.
-
+rewrite the main tdb script into a class and split it into more relevant modules.
+introduce async to run various steps in parallel (torrent creation)
 
 List of planned/considered updates.
-16. Automatic IMDB/TMDB/TVDB checking
+
 17. Tracker selection (when multiple, ask which to be used)
 20. Support for upload to UHDB
 21. Support direct file/folder input from cmd line. Also direct parsing?
@@ -120,6 +132,7 @@ List of planned/considered updates.
 32. Add config for BHD to allow direct posting instead of drafts only. (requires imdb/tmdb input)
 33. Linux?
 34. Tidy up outputs and add logging.
+35. mtv support
 
 Known bugs (2020.05.10)
 34. on extremely rare occasion I have seen episode numbering or titles can skip some detail in tdb uploading. Titles fixed (10/05). item remains open until both fixed
