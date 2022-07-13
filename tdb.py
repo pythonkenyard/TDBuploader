@@ -627,7 +627,6 @@ def guess(filetitle):
 
 
 def tmdbtag(imdbnum,filetitle,tmdb_api_key):
-    #f'https://api.themoviedb.org/3/find/tt0805418?api_key={tmdb_api_key}&language=en-US&external_source=tvdb_id'
     try:
         tmdbrequest = requests.get(url=f"https://api.themoviedb.org/3/find/tt{imdbnum}?api_key={tmdb_api_key}&language=en-US&external_source=imdb_id").json()
         #print(tmdbrequest)
@@ -838,7 +837,7 @@ def createtorrent(folloc, selection, cfg):
         os.system(r'torf "'+str(folloc)+'" -t '+str(cfg["tracker"][i]["announce"])+ ' -M --private --out "'+str(newdir)+"/["+i+"] "+str(torrentname)+'.torrent')
         print("Torrent created for "+i)
         if cfg["tracker"][i]["autoupload"]:
-            print("Autoupload is enabled. Upload Window will open shortly.")
+            print(f"Autoupload is enabled for {i}. Upload Window will open shortly.")
             torrent = rf"[{i}] {torrentname}.torrent"
             if len(uploadlist) <1:
                 uploadlist = {i : fr"{newdir}/{torrent}"}
@@ -861,9 +860,9 @@ def createtorrent(folloc, selection, cfg):
         mediainfowrite = mediainfowrite.replace(removepath,"")
     except:
         print("cannot remove path. Check upload site media info for Complete name")
-
-    mediainfoutput = open(f"{cwd}/torrents/aamediainfo/{torrentname}.txt","w")
-    mediainfoutput2 = open(f"{newdir}/{torrentname}.txt","w")
+    print("writing media info to file")
+    mediainfoutput = open(f"{cwd}/torrents/aamediainfo/{torrentname}.txt","w", encoding="utf-8")
+    mediainfoutput2 = open(f"{newdir}/{torrentname}.txt","w", encoding="utf-8")
     mediainfoutput.write(str(mediainfowrite))
     mediainfoutput2.write(str(mediainfowrite))
     print("\nTorrent and mediainfo written to "+newdir+" as " +torrentname+".torrent")
