@@ -2,6 +2,8 @@
 -TorrentDB   
 -BeyondHD   
     
+#Status update 2022.07.14 - Bugs ironed out and some nice new features and optimisations added however I wont have time to push an update until Monday/Tuesday
+
 #Status update 2022.05.19 - Support added for TMDB, IMDB and TVDB, however I have created some issues around title naming for TDB. I need to iron out the known bugs before pushing an update.
    
 # TDBuploader  
