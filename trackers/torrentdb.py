@@ -81,7 +81,10 @@ class tdb(tracker):
         except:
             print("No download directory set. Using chrome default. Note you can update this in Chromedriver settings(6)")
             time.sleep(1)
-        driver = webdriver.Chrome(options=options)
+        try:
+            driver = webdriver.Chrome(options=options)
+        except:
+            print("ERROR CHROMEDRIVER VERSION INCORRECT")
         driver.set_page_load_timeout(8)
         driver.implicitly_wait(5)
 
@@ -94,7 +97,7 @@ class tdb(tracker):
 
             driver.get("https://www.torrentdb.net/upload")
         except:
-            print("cannot load torrentdb")
+            print("cannot load torrentdb. Check your chromedriver version or run 'python chromedriver.py'")
         #LOGIN
         try:
             #check if we are on the upload page already
