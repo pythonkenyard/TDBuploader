@@ -19,7 +19,7 @@ print("\n\
     |_|  |_____/|____/ \\__,_| .__/|_|\\___/ \\__,_|\\__,_|\\___|_|\n\
                             | |\n\
                             |_|")
-print("\nVersion 2.6.3 Beta,\nNote it is suggested to use latest table release.\nhttps://github.com/pythonkenyard/TDBuploader ")
+print("\nVersion 2.6.4 Beta,\nNote it is suggested to use latest stable release.\nhttps://github.com/pythonkenyard/TDBuploader ")
 
 def initial_setup(cfg):
 
@@ -116,7 +116,7 @@ def initial_setup(cfg):
 with open("config/config.yaml", 'r') as stream:
     cfg = yaml.safe_load(stream)
 time.sleep(0.1)
-#print(str(cfg))
+
 #initial setup, establish tracker etc..
 if cfg["tracker"] is None:
     print("\nFIRST TIME SETUP\n\n")
@@ -124,6 +124,7 @@ if cfg["tracker"] is None:
     #reopen config
     with open("config/config.yaml", 'r') as stream:
         cfg = yaml.safe_load(stream)
+    
 else:
     pass
 
