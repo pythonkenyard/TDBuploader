@@ -107,39 +107,41 @@ tvdb support and tvdb metadata scraping.
 
 
 # To do:  
-Current Priorities. (2020.07.13)
-Add year parsing so it can be added for movies or tv series when required.
-Fix season input for tdb
-save useful info e.g. imgbox metadata.
-Update tdb to use imdb/tmdb tags when available for uploads.
--parse media info to check them. - complete
--skip direct lookup of sites if available - complete
--otherwise lookup. - complete
--when available tdb will overwrite default and use what is available.
-Review possibility to use tdb api.
-Dupe checker?
-foreign language detection for naming.
-Create installable and updateable version via Pip or git.
-Supoprt for and quick enable/disable Anonymous mode, interactive mode, reset defaults. fully automatic mode.
-rewrite the main tdb script into a class and split it into more relevant modules.
-introduce async to run various steps in parallel (torrent creation)
+Current Priorities. (2022.07.21)
+Add year parsing so it can be added for movies or tv series when in title   
+Fix season input for tdb   
+save useful info to file e.g. imgbox metadata.   
+Update tdb to use imdb/tmdb tags when available for uploads. - inprogress   
+-parse media info to check them. - complete    
+-skip direct lookup of sites if available - complete   
+-otherwise lookup. - complete   
+-when available tdb will overwrite default and use what is available.   
+Review possibility to use tdb api.   
+Dupe checker?   
+foreign language detection for naming.   
+Create installable and updateable version via Pip or git?    
 
-List of planned/considered updates.
-
-17. Tracker selection (when multiple, ask which to be used)
-20. Support for upload to UHDB
-21. Support direct file/folder input from cmd line. Also direct parsing?
-22. Support for upload to PHD
-23. Title naming needs some improvements for Hevc and X265 files
-25. Support for full disks (screens,mediainfo)
-26. Add Setting to remove screening check for uploads. (needs imdb/tmdb input)
-27. Title naming to include file parsing for e.g. criterion collection, extended edition etc..
-28. where title cannot be parsed, implement check to try parsing file for same.
-30. Suppot for Digitalcore?
-32. Add config for BHD to allow direct posting instead of drafts only. (requires imdb/tmdb input)
-33. Linux?
-34. Tidy up outputs and add logging.
-35. mtv support
+Supoprt for and quick enable/disable Anonymous mode, interactive mode, reset defaults. fully automatic mode.  
+rewrite the main tdb script into a class and split it into more relevant modules.   
+introduce async to run various steps in parallel (torrent creation)   
+   
+List of planned/considered updates.   
+   
+17. Tracker selection (when multiple, ask which to be used?) - probably not   
+20. Support for upload to UHDB   
+21. Support direct file/folder input from cmd line. Also direct parsing?   
+22. Support for upload to PHD   
+23. Title naming needs some improvements for Hevc and X265 files   
+25. Support for full disks (screens,mediainfo)   
+26. Add Setting to remove screening check for uploads. (needs imdb/tmdb input)   
+27. Title naming to include file parsing for e.g. criterion collection, extended edition etc..   
+28. where title cannot be parsed, implement check to try parsing file for same.   
+30. Suppot for Digitalcore?   
+32. Add config for BHD to allow direct posting instead of drafts only. (requires imdb/tmdb input)   
+33. Linux?   
+34. Tidy up outputs and add logging.   
+35. mtv support?   
+36. tvv support? 
 
 Known bugs (2020.05.10)
 34. on extremely rare occasion I have seen episode numbering or titles can skip some detail in tdb uploading. Titles fixed (10/05). item remains open until both fixed
