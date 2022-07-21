@@ -108,6 +108,9 @@ tvdb support and tvdb metadata scraping.
 
 # To do:  
 Current Priorities. (2022.07.21)
+Add a custom text to description.   
+Add release notes and a setting toggle to use it or not?   
+Add toggle to always use imdb/tmdb data fetching.   
 Add year parsing so it can be added for movies or tv series when in title   
 Fix season input for tdb   
 save useful info to file e.g. imgbox metadata.   
@@ -117,7 +120,6 @@ Update tdb to use imdb/tmdb tags when available for uploads. - inprogress
 -otherwise lookup. - complete   
 -when available tdb will overwrite default and use what is available.   
 Review possibility to use tdb api.   
-Dupe checker?   
 foreign language detection for naming.   
 Create installable and updateable version via Pip or git?    
 
@@ -142,6 +144,7 @@ List of planned/considered updates.
 34. Tidy up outputs and add logging.   
 35. mtv support?   
 36. tvv support? 
+37. Dupe checker?   
 
 Known bugs (2020.05.10)
 34. on extremely rare occasion I have seen episode numbering or titles can skip some detail in tdb uploading. Titles fixed (10/05). item remains open until both fixed
