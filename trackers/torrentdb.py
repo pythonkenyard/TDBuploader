@@ -92,7 +92,7 @@ class tdb(tracker):
                     driver = webdriver.Chrome(options=options)
                 except:
                     print("either failed to udpate or your local chrome version doesnt match chromedriver version. Please manually check your chrome version and download chromedriver from\
-                    \nchromedriver website."
+                    \nchromedriver website.")
             else:
                 print("exiting")
                 quit()
