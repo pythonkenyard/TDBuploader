@@ -1016,7 +1016,7 @@ def createtorrent(folloc, selection, cfg):
         pass
     if len(uploadlist) >0:
         for y in uploadlist.items():
-            print(f"attempting upload to {cfg['tracker'][y[0]]}")
+            print(f"attempting upload to {y[0]}")
             #{tracker:torrent}, screenshots, title name, duration, height, audio format, video format
             #NOTE UPLOADLIST NEEDS TO BE REMOVED FROM POST(UPLOADLIST IF THERE ARE MULTIPLE TRACKERS
             if cfg["tracker"][y[0]]["autoupload"]:
@@ -1038,22 +1038,22 @@ def createtorrent(folloc, selection, cfg):
                 elif y[0] == "torrentdb" or y[0] == "tdb":
 
                     tdb = torrentdb.tdb(track_loc,screenshots, torrentname, duration, title_height, audioformat,videoformat, mediainfowrite,usr,pwd,tag)
-
+                    print("instantiated tdb")
                     short_title, seasonepisode, seasonmatch, rlsgrp = tdb.get_short_title()
+                    
                     seasonmatch = [season,season]
                     videosource, videosource2 = tdb.get_type()
                     if len(rlsgrp)>1:
                         tdb.releasegrp = "-"+rlsgrp
                     #prechecks for qbittorrent auto upload enabled
+                    
                     try:
                         qbittorrent = qbitcfg["Enabled"]
-                    except:
-                        qbittorrent = False
-                    if qbittorrent:
-                        pretorrentlist = add_torrent_check(chromecfg)
                         print(f"torrent adding to qbittorrent is set as {qbittorrent}")
-                    else:
+                        pretorrentlist = add_torrent_check(chromecfg)
+                    except:
                         print("Automatic torrent adding to qbittorrent disabled. to enable it change qbittorrent->enabled to 'true'")
+                        qbittorrent = False
 
                     #tdb wants x264 to be H264
                     #if videosource=="x264":
@@ -1067,3 +1067,4 @@ def createtorrent(folloc, selection, cfg):
                         time.sleep(1)
             else:
                 print("Autoupload not enabled for X")
+
