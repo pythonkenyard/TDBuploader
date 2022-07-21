@@ -39,7 +39,7 @@ class tracker():
         except:
             seasonepisode =["","",""]
             try:
-                seasonmatch = [short_title,episode]
+                seasonmatch = [short_title,season]
                 """seasonmatch = seasonmatch2.findall(short_title.upper())"""
                 print(str(seasonmatch))
                 print("Season type found")
