@@ -11,7 +11,7 @@ from imgbox import imgbox
 
 class bhd(tracker):
 
-    def __init__(self, uploadlist , screenshots, remainder, duration, title_height, audioformat, videoformat, media_info, usr, pwd, tag,apikey):
+    def __init__(self, uploadlist , screenshots, remainder, duration, title_height, audioformat, videoformat, media_info, usr, pwd, tag,apikey, episodetitle):
         super().__init__(screenshots, remainder, duration, title_height, audioformat, videoformat, media_info )
 
         uploadlist = next(iter((uploadlist.items())) )
@@ -21,8 +21,9 @@ class bhd(tracker):
         self.username = usr
         self.releasegrp = tag
         self.password  = pwd
+        self.episodetitle = episodetitle
         self.torrentlocation = uploadlist[1]
-        #print(self.torrentlocation)
+        print(f"upload location is {self.torrentlocation}")
         self.mediainfo = media_info
         #print(self.mediainfo)
         time.sleep(0.5)
@@ -31,23 +32,27 @@ class bhd(tracker):
         pack = "0"
         special = "0"
 
+        if videosource == "WEB-DL" and self.format == "x264":
+            self.format = "H.264"
+
+        #adds the download source e.g. NFLX before video source e.g. WEB-DL
+        if (downloadsource is None):
+            downloadsource_videosource= videosource
+        else:
+            downloadsource_videosource = f"{downloadsource} {videosource}"
         if len(seasonepisode[2]) >0:
             print("assigning season/episode title")
             category_id = "2"
+            #add the episode title before resolution
+            if len(self.episodetitle)>1:
+                episodetitle_resolution = f"{self.episodetitle} {self.resolution}"
+            else:
+                episodetitle_resolution = self.resolution
             try:
+                name = f"{short_title} S{seasonepisode[1]}E{seasonepisode[2]} {episodetitle_resolution} {downloadsource_videosource} {self.audioformat} {self.format}{self.releasegrp}"
 
-                if (downloadsource is None):
-                    name = f"{short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {videosource} {self.audioformat} {self.format}{self.releasegrp}"
-                else:
-                    name = f"{short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {downloadsource} {videosource} {self.audioformat} {self.format}{self.releasegrp}"
             except:
-                try:
-                    if (downloadsource is None):
-                        name = f"{short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {videosource} {self.audioformat} {self.format} {self.releasegrp}"
-                    else:
-                        name = f"{short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {downloadsource} {videosource} {self.audioformat} {self.format}{self.releasegrp}"
-                except:
-                    pass
+                print("error on title assignment")
             if seasonepisode[1] =="00":
                 special = "1"
         elif len(seasonmatch[1])>0:
@@ -55,25 +60,19 @@ class bhd(tracker):
             category_id = "2"
             pack = "1"
             try:
-                if (downloadsource is None):
-                    name = f"{short_title} S{seasonmatch[1]} {self.resolution} {videosource} {self.audioformat} {self.format}{self.releasegrp}"
-
-                else:
-                    name = f"{short_title} S{seasonmatch[1]} {self.resolution} {downloadsource} {videosource} {self.audioformat} {self.format}{self.releasegrp}"
+                name = f"{short_title} S{seasonmatch[1]} {self.resolution} {downloadsource_videosource} {self.audioformat} {self.format}{self.releasegrp}"
                 print(f"assigning title {short_title} {seasonmatch[1]}")
             except:
-                pass
+                print("error on title assignment")
+
         else:
             print("assigning movie standard title")
             category_id = "1"
 
             try:
-                if (downloadsource is None):
-                    name = f"{short_title} {self.resolution} {videosource} {self.audioformat} {self.format} {self.releasegrp}"
-                else:
-                    name = f"{short_title} {self.resolution} {downloadsource} {videosource} {self.audioformat} {self.format}{self.releasegrp}"
+                name = f"{short_title} {self.resolution} {downloadsource_videosource} {self.audioformat} {self.format} {self.releasegrp}"
             except:
-                pass
+                print("error on title assignment")
         return name, category_id, pack, special
 
     def post_screens(self):
@@ -85,15 +84,16 @@ class bhd(tracker):
 
     def post_upload(self,downloadsource, imdb_id, tmdb_id, description):
         if (downloadsource is None):
-            print("empty")
+            print("no source site e.g. AMZN in name. cannot assign")
             self.downloadsource = None
         else:
             self.downloadsource = downloadsource
 
         bbcode = self.post_screens()
+        
         #bbcode = "disabled screenshot upload"
-        bbcode = bbcode + f"\n\n{description}\n\nTorrent creation and Upload supported by TDBuploader\nhttps://github.com/pythonkenyard/TDBuploader"
-
+        bbcode = bbcode + f"\n\n{description}\n\nIssues or problems please pm me."
+        
         self.videosource, self.videosource2 = self.get_type()
         print(str(self.videosource))
         #tags
@@ -109,10 +109,12 @@ class bhd(tracker):
         print("getting relevant info")
         #full name, category(movie or tv show)
         self.short_title, self.seasonepisode, self.seasonmatch,rlsgrp = self.get_short_title()
+        #print("season is" + str(self.seasonmatch))
+
         if len(rlsgrp)>1:
             self.tag = rlsgrp
         self.name, self.category_id, self.pack, self.special = self.generate_title(self.short_title, self.seasonepisode, self.seasonmatch, self.videosource, self.downloadsource)
-        print(f"{self.name,} {self.category_id}, {self.pack}, {self.special}, {self.torrentlocation}, {self.mediainfo}")
+        #print(f"{self.name,} {self.category_id}, {self.pack}, {self.special}, {self.torrentlocation}, {self.mediainfo}")
 
         #upload DATA
 
@@ -131,7 +133,7 @@ class bhd(tracker):
             "description": bbcode,
             "tags": tags,
             "pack": self.pack,
-            "sd": "1",
+            "sd": "0",
             "special": self.special,
             "anon": "0",
             "live": "0"
