@@ -2,9 +2,7 @@
 -TorrentDB   
 -BeyondHD   
     
-#Status update 2022.07.14 - Bugs ironed out and some nice new features and optimisations added however I wont have time to push an update until Monday/Tuesday
-
-#Status update 2022.05.19 - Support added for TMDB, IMDB and TVDB, however I have created some issues around title naming for TDB. I need to iron out the known bugs before pushing an update.
+#Status update 2022.07.21: lots of nice optomisations pushed
    
 # TDBuploader  
 Script for creation of torrents, for your tracker, which also creates text file with mediainfo, screenshots and mediainfo ready for uploading.  
@@ -54,6 +52,13 @@ Everything required for file/Folder upload.
     
     
 **#Change History (yyyy.mm.dd)**
+2022.07.21
+Fixed season naming for bhd.
+Optomimised multi tracker torrent creation. system will now copy existing torrent and update the announce for the additional tracker which dramatically speeds up torrent creation when using multiple trackers
+chromedriver autoupdater which matches to chrome version. (or consider adding as a binary? will cookies work?)
+Add episode name parsing and add to file upload.
+Added file parsing for imdb/tmdb/tvdb id.
+
 2022.07.13
 Resolved issue around mediainfo not saving correctly when using non standard letters/charachters
 tvdb support and tvdb metadata scraping.
@@ -103,15 +108,13 @@ tvdb support and tvdb metadata scraping.
 
 # To do:  
 Current Priorities. (2020.07.13)
-Need to fix season naming for bhd.
-chromedriver autoupdater which matches to chrome version. (or consider adding as a binary? will cookies work?)
-Add episode name parsing and add to file upload.
+Add year parsing so it can be added for movies or tv series when required.
+Fix season input for tdb
 save useful info e.g. imgbox metadata.
-When multiple trackers, copy torrent and edit the announce instead of generating a new one which should save time especially on larger torrents.
 Update tdb to use imdb/tmdb tags when available for uploads.
--parse media info to check them.
--skip direct lookup of sites if available
--otherwise lookup.
+-parse media info to check them. - complete
+-skip direct lookup of sites if available - complete
+-otherwise lookup. - complete
 -when available tdb will overwrite default and use what is available.
 Review possibility to use tdb api.
 Dupe checker?
