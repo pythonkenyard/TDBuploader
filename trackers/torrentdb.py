@@ -25,7 +25,7 @@ class tdb(tracker):
         self.torrentlocation = uploadlist[1]
 
 
-    def login(self, videosource, seasonepisode, seasonmatch, short_title, videosource2,downloadsource,chromecfg,scrn,description):
+    def login(self, videosource, seasonepisode, seasonmatch, short_title, videosource2,downloadsource,chromecfg,scrn,description, episodetitle):
 
         videosource = videosource
         movchoice = {
@@ -90,8 +90,11 @@ class tdb(tracker):
         #driver = webdriver.Chrome(executable_path=chromedriverpath, options=options)
 
         print("Loading page...")
-        driver.get("https://www.torrentdb.net/upload")
+        try:
 
+            driver.get("https://www.torrentdb.net/upload")
+        except:
+            print("cannot load torrentdb")
         #LOGIN
         try:
             #check if we are on the upload page already
@@ -155,7 +158,7 @@ class tdb(tracker):
         #description
         try:
             text_field = driver.find_element(By.XPATH, "//*[@class='wysibb-text-editor wysibb-body']")
-            pc.copy(f"{description}\n\nTorrent creation and Upload supported by TDBuploader.\nhttps://github.com/pythonkenyard/TDBuploader")
+            pc.copy(f"{description}\n\n Issues or problems please pm me.")
             text_field.send_keys(Keys.CONTROL, 'v')
             print("pasted media info")
         except:
@@ -239,7 +242,17 @@ class tdb(tracker):
             videosource = videosource2
         if self.format == "x264" and videosource.upper() == "WEB-DL":
             self.format = "H.264"
+        if self.format == "x265" and videosource.upper() == "WEB-DL":
+            self.format = "H.265"
+        #combine "AMZN" "1080p" if needed
+
+        if (downloadsource is None):
+            downloadsource_videosource= f"{videosource}"
+        else:
+            downloadsource_videosource = f"{downloadsource} {videosource}"
         #TV SHOW TITLE
+        print(downloadsource_videosource)
+        
         try:
             print("checking for season-episode")
             episode = int(seasonepisode[2])
@@ -262,13 +275,13 @@ class tdb(tracker):
                 error = error + "Season/Episode toggle"
                 pass
 
-            try:
-                if (downloadsource is None):
-                    torrent_title = f"{short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}"
-                    print(f"Assigned title {short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
-                else:
-                    torrent_title = f"{short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}"
-                    print(f"Assigned title {short_title} S{seasonepisode[1]}E{seasonepisode[2]} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
+            if len(episodetitle)>1:
+                episodetitle_resolution = f"{episodetitle} {self.resolution}"
+            else:
+                episodetitle_resolution = self.resolution
+            try: 
+                torrent_title = f"{short_title} S{seasonepisode[1]}E{seasonepisode[2]} {episodetitle_resolution} {downloadsource_videosource} {self.format} {self.audioformat}{self.releasegrp}"
+                print(f"Assigned title {short_title} S{seasonepisode[1]}E{seasonepisode[2]} {episodetitle_resolution} {downloadsource_videosource} {self.format} {self.audioformat}{self.releasegrp}")
 
             except:
                 error = error + "torrent title, "
@@ -280,24 +293,18 @@ class tdb(tracker):
                 if len(seasonmatch[1])>0:
                     print("assigning season title")
                     try:
-                        if (downloadsource is None):
-                            torrent_title = f"{short_title} S{seasonmatch[1]} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}"
-                            print(f"Assigned title {short_title} S{seasonmatch[1]} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
-                        else:
-                            torrent_title = f"{short_title} S{seasonmatch[1]} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}"
-                        print(f"Assigned title {short_title} S{seasonmatch[1]} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
+                        torrent_title = f"{short_title} S{seasonmatch[1]} {self.resolution} {downloadsource_videosource} {self.format} {self.audioformat}{self.releasegrp}"
+                        print(f"Assigned title {short_title} S{seasonmatch[1]} {self.resolution} {downloadsource_videosource} {self.format} {self.audioformat}{self.releasegrp}")
+
                     except:
                         error = error + ",title"
             #MOVIE TITLE
             except:
                 print("assigning movie standard title")
                 try:
-                    if (downloadsource is None):
-                        torrent_title = f"{short_title} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}"
-                        print(f"Assigned title {short_title} {self.resolution} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
-                    else:
-                        torrent_title = f"{short_title} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}"
-                        print(f"Assigned title {short_title} {self.resolution} {downloadsource} {videosource} {self.format} {self.audioformat}{self.releasegrp}")
+                    torrent_title = f"{short_title} {self.resolution} {downloadsource_videosource} {self.format} {self.audioformat}{self.releasegrp}"
+                    print(f"Assigned title {short_title} {self.resolution} {downloadsource_videosource} {self.format} {self.audioformat}{self.releasegrp}")
+
                 except:
                     error = error + ",title"
             time.sleep(0.3)
@@ -317,7 +324,14 @@ class tdb(tracker):
                 ep.send_keys(removedzero)
             except:
                 error = error + "series/episode - Episode input,"
-
+            #season input
+            try:
+                season_selector = driver.find_elements(By.XPATH,"//input[@placeholder='Comma delimited numbers (e.g. 1,2,3)']")
+                seasoninput = str(seasonepisode[1])
+                season_selector.sendkeys(seasoninput)
+            except:
+                print("cannot input season")
+                error = error + "Season input"
         if len(error)>3:
             input("\n\nERROR"+str(error)+"\n Please resolve these issues and press enter")
         else:
