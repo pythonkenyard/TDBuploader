@@ -84,7 +84,8 @@ class tdb(tracker):
         try:
             driver = webdriver.Chrome(options=options)
         except:
-            print("ERROR CHROMEDRIVER VERSION INCORRECT")
+            x = input("ERROR CHROMEDRIVER VERSION INCORRECT. please upgrade chromedriver. You can try the autoupdater with\n'pip install webdriver-auto-update'\n'python chromedriver.py'")
+            quit()
         driver.set_page_load_timeout(8)
         driver.implicitly_wait(5)
 
