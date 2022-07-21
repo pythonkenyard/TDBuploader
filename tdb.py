@@ -5,7 +5,6 @@ from os import listdir
 import os
 import subprocess
 import cv2
-import json
 from pathlib import Path
 from pymediainfo import MediaInfo
 import yaml
@@ -16,7 +15,16 @@ from guessit import guessit
 import imdb
 import requests
 import tvdb
+import re
 
+
+uploadtrackers = ["bhd","beyondhd","tdb","torrentdb"]
+
+"""requirements for new tracker
+create new class
+import class to here
+add config line ~90 to include
+"""
 
 with open("config/config.yaml", 'r') as stream:
     cfg = yaml.safe_load(stream)
@@ -38,18 +46,12 @@ except:
     print("\nWARNING! no qbittorrent config file or Broken config file\nPlease download the lastest config file to config/chrome.yaml")
     time.sleep(3)
 
-uploadtrackers = ["bhd","beyondhd","tdb","torrentdb"]
-"""requirements for new tracker
-create new class
-import class to here
-add config line ~90 to include
-"""
 
 #Settings / configuration update menu
 def runsetup(cfg):
     cfg = cfg
     setupselection = "0"
-
+    
     while setupselection != "z":
         os.system("cls")
         setupselection = input(
@@ -357,7 +359,6 @@ Options:\n\
                             del cfg["tracker"][chrome_update]
                             os.system("cls")
                             print(f"\nDisabled {chrome_update}")
-                            time.sleep(1)
                         else:
                             os.system("cls")
                             print("Input Error, please try again\n")
@@ -775,50 +776,99 @@ def createtorrent(folloc, selection, cfg):
     startdigit = folloc.rfind("/", 0, len(folloc)) +1
 
     torrentname = folloc[startdigit:len(folloc)]
-
+    print("attempting to get file title, name etc")
+    
+    
+    try:
+        imdbnum = re.search("IMDB\s+:\stt(\d+)",mediainfowrite)
+        imdbnum = imdbnum.group(1)
+        imdbtitle, imdbyear = " ", "1"
+        findimdb = False
+    except:
+        findimdb = True
+        print("IMDB info not present in mediainfo. will manually search")
+    try:
+        tmdbnum = re.search("TMDB\s+:\stv\/(\d+)",mediainfowrite)
+        tmdbnum = tmdbnum.group(1)
+        findtmdb = False
+        tmdb_desc, tmdb_type = " ", " "
+    except:
+        findtmdb = True
+        print("TMDB info not present in mediainfo. will manually search")
+    try:
+        tvdbnum = re.search("TVDB\s+:\s(\d+)",mediainfowrite)
+        tvdbnum = tvdbnum.group(1)
+        tvdbnum = [tvdbnum]
+        findtvdb = False
+    except:
+        findtvdb = True
+        print("IMDB info not present in mediainfo. will manually search")
     try:
         fileattributes = guessit(torrentname)
+        
         filetitle = fileattributes['title']
         print(filetitle+" is the title")
-        rlsgrp = fileattributes["release_group"]
         tmdb_api_key = chromecfg["tmdb_api_key"]
         if len(tmdb_api_key) > 1:
-            try:
-                imdbnum, imdbtitle, imdbyear = guess(filetitle)
-                #print(f"{imdbnum}, {imdbtitle}, {imdbyear}")
-            except:
-                print("no imdbid found.")
-            try:
-                #print(f"{imdbnum},{filetitle},{tmdb_api_key}")
-                tmdbnum, tmdb_desc, tmdb_type = tmdbtag(imdbnum,filetitle,tmdb_api_key)
-            except:
-                print("skipping tmdb check also. please setup tmdb api key for searching IMDB and TMDB")
-            try:
-                episode = fileattributes['episode']
-                episode = str(episode).zfill(2)
-            except:
-                episode = "01"
-            try:
-                season = fileattributes['season']
-                season = str(season).zfill(2)
-            except:
-                season = " "
-            try:
-                seasonepisode = f"S{season}E{episode}"
+            print("tmdb api key set. retrieving IMDB/TMDB/tvdb data")
+            if findimdb:
+                try:
+                    imdbnum, imdbtitle, imdbyear = guess(filetitle)
+                    #print(f"{imdbnum}, {imdbtitle}, {imdbyear}")
+                except:
+                    print("no imdbid found.")
+                    imdbnum, imdbtitle, imdbyear = "1"," ", "1"
+            if findtmdb:
+                try:
+                    #print(f"{imdbnum},{filetitle},{tmdb_api_key}")
+                    tmdbnum, tmdb_desc, tmdb_type = tmdbtag(imdbnum,filetitle,tmdb_api_key)
+                except:
+                    tmdbnum, tmdb_desc, tmdb_type = "1", " ", " "
+                    print("skipping tmdb check also. please setup tmdb api key for searching IMDB and TMDB")
+        try:
+            episode = fileattributes['episode']
+            episode = str(episode).zfill(2)
+        except:
+            episode = "01"
+        try:
+            season = fileattributes['season']
+            season = str(season).zfill(2)
+        except:
+            season = " "
+        try:
+            seasonepisode = f"S{season}E{episode}"
                 #print(seasonepisode)
+            if findtvdb:
                 tvdbdata = tvdb.get_tvdb(filetitle,seasonepisode)
                 print("gathered tvdb data")
                 print(str(tvdbdata))
-            except:
-                print("no tvdb information available")
-                #print(str(torrentname))
+        except:
+            print("no tvdb information available")
+            #print(str(torrentname))
+        
+
+        rlsgrp = fileattributes["release_group"]
+
+        try:
+            episodetitle = fileattributes['episode_title']
+            print(episodetitle)
+        except:
+            episodetitle = " "
+        
     except:
         imdbnum, imdbtitle, imdbyear, tmdbnum, tmdb_desc, tmdb_type = "1","None","1", "1", "none", "none"
         print("skipping use of TMDB/IMDB. To enable imdb/tmdb please add a tmdb config variable")
 
+    print(f"IMDB: {imdbnum}\nTMDB: {tmdbnum}\nTVDB: {tvdbnum[0]}")
 
-
-    newdir= f"{cwd}/torrents/{torrentname}"
+    if len(torrentname) >80:
+        shortdirectory = torrentname[:80]
+    else:
+        try:
+            shortdirectory = torrentname.replace(".mkv","")
+        except:
+            shortdirectory = torrentname
+    newdir= f"{cwd}/torrents/{shortdirectory}"
     mediainfodir = f"{cwd}/torrents/aamediainfo"
     try:
         print("Attempting to create "+newdir)
@@ -832,24 +882,37 @@ def createtorrent(folloc, selection, cfg):
         print("Error. Torrent output directory already exists.. this will prompt to use existing or overwrite content...")
     uploadlist = {} #tuple of tracker and torrent
     screenshot_summary = [] #create a list with desired amount of screenshots to check max later
+    initial_torrent = 1
     for i in cfg["tracker"].keys():
-        print("creating torrent for "+i)
-        os.system(r'torf "'+str(folloc)+'" -t '+str(cfg["tracker"][i]["announce"])+ ' -M --private --out "'+str(newdir)+"/["+i+"] "+str(torrentname)+'.torrent')
-        print("Torrent created for "+i)
+        if initial_torrent == 1:
+            print("creating torrent for "+i)
+            shorti = i[:3]
+            os.system(r'torf "'+str(folloc)+'" -t '+str(cfg["tracker"][i]["announce"])+ ' -M --private --out "'+str(newdir)+"/["+shorti+"] "+str(shortdirectory)+'.torrent')
+            print("Torrent created for "+i)
+            initial_tracker = i
+
+            try:
+                screenshot_setting = cfg["tracker"][i]["screenshots"]
+
+                screenshot_summary.append(screenshot_setting)
+            except:
+                print("no screenshot setting for this tracker")
+        else:
+            src_file = uploadlist[initial_tracker]
+            dst_file = src_file.replace(initial_tracker, i[:3])
+            tracker_announce = str(cfg["tracker"][i]["announce"])
+            os.system(f'torf -i "{src_file}" -T -t {tracker_announce} -o "{dst_file}"')
+            print(dst_file)
+        
         if cfg["tracker"][i]["autoupload"]:
             print(f"Autoupload is enabled for {i}. Upload Window will open shortly.")
-            torrent = rf"[{i}] {torrentname}.torrent"
+            torrent = rf"[{shorti}] {shortdirectory}.torrent"
             if len(uploadlist) <1:
                 uploadlist = {i : fr"{newdir}/{torrent}"}
             else:
                 uploadlist[i] = fr"{newdir}/{torrent}"
-        try:
-            screenshot_setting = cfg["tracker"][i]["screenshots"]
-
-            screenshot_summary.append(screenshot_setting)
-        except:
-            print("no screenshot setting for this tracker")
-
+        
+        initial_torrent +=1
     #print(str(mediainfowrite))
     #remove path from mediainfo Complete name
     try:
@@ -861,12 +924,12 @@ def createtorrent(folloc, selection, cfg):
     except:
         print("cannot remove path. Check upload site media info for Complete name")
     print("writing media info to file")
-    mediainfoutput = open(f"{cwd}/torrents/aamediainfo/{torrentname}.txt","w", encoding="utf-8")
-    mediainfoutput2 = open(f"{newdir}/{torrentname}.txt","w", encoding="utf-8")
+    mediainfoutput = open(f"{cwd}/torrents/aamediainfo/{shortdirectory}.txt","w", encoding="utf-8")
+    mediainfoutput2 = open(f"{newdir}/{shortdirectory}.txt","w", encoding="utf-8")
     mediainfoutput.write(str(mediainfowrite))
     mediainfoutput2.write(str(mediainfowrite))
-    print("\nTorrent and mediainfo written to "+newdir+" as " +torrentname+".torrent")
-    mediainfodirectory = rf"{cwd}/torrents/aamediainfo/{torrentname}.txt"
+    print("\nTorrent and mediainfo written to "+newdir+" as " +shortdirectory+".torrent")
+    mediainfodirectory = rf"{cwd}/torrents/aamediainfo/{shortdirectory}.txt"
     mediainfoutput.close()
     mediainfoutput2.close()
 
@@ -891,7 +954,7 @@ def createtorrent(folloc, selection, cfg):
             else:
                 frame_number=frame_number+3000
                 # if video is still left continue creating images
-                name = f'{cwd}/torrents/{torrentname}/{frame_number}.png'
+                name = f'{newdir}/{frame_number}.png'
                 print('Creating...' + name)
                 screenshots.append(name)
                 # writing the extracted images
@@ -929,12 +992,14 @@ def createtorrent(folloc, selection, cfg):
     elif tmdb_type == "movie":
         description = f"TMDB\n[url=https://www.themoviedb.org/movie/{tmdbnum}]TMDB LINK[/url]\n\n{tmdb_desc}"
     else:
+        print("no tmdb info")
         description = " "
     try:
         if int(imdbnum)>1:
             description = f"{imdbyear}\n" +description+ f"\n\nIMDB\n[url=https://www.imdb.com/title/tt{imdbnum}]IMDB LINK[/url]"
             print("appended IMDB info to description for upload")
     except:
+        print("no imdb info")
         pass
     try:
         tvdbid = str(tvdbdata[0])
@@ -947,9 +1012,11 @@ def createtorrent(folloc, selection, cfg):
             description = f"{filetitle} - {seasonepisode}\n\n{tvdbepinfo}\n[img]{tvdbepjpg}[/img]\n\nTVDB SHOW INFORMATION\n{tvdbserinfo}\n[img]{tvdbserjpg}[/img]\n" +description
             print("appended TVDB info to description for upload")
     except:
+        print("no tvdb info")
         pass
     if len(uploadlist) >0:
         for y in uploadlist.items():
+            print(f"attempting upload to {cfg['tracker'][y[0]]}")
             #{tracker:torrent}, screenshots, title name, duration, height, audio format, video format
             #NOTE UPLOADLIST NEEDS TO BE REMOVED FROM POST(UPLOADLIST IF THERE ARE MULTIPLE TRACKERS
             if cfg["tracker"][y[0]]["autoupload"]:
@@ -964,7 +1031,7 @@ def createtorrent(folloc, selection, cfg):
                     apikey = cfg["tracker"][y[0]]["apikey"]
                     screenshots = screenshots[:scrn]
 
-                    bhd_obj = bhd.bhd(track_loc,screenshots, torrentname, duration, title_height, audioformat,videoformat, mediainfodirectory,usr,pwd,tag,apikey)
+                    bhd_obj = bhd.bhd(track_loc,screenshots, torrentname, duration, title_height, audioformat,videoformat, mediainfodirectory,usr,pwd,tag,apikey, episodetitle)
                     bhd_obj.post_upload(downloadsource, imdbnum, tmdbnum,description)
                     print("\nPosted to BHD\n")
 
@@ -992,11 +1059,11 @@ def createtorrent(folloc, selection, cfg):
                     #if videosource=="x264":
                     #    videosource="H.264"
                     print(f"{videosource}, {seasonepisode}, {seasonmatch}, {short_title}, {videosource2},{downloadsource},{chromecfg},{scrn}")
-                    tdb.login(videosource, seasonepisode, seasonmatch, short_title, videosource2,downloadsource,chromecfg,scrn,description)
+                    tdb.login(videosource, seasonepisode, seasonmatch, short_title, videosource2,downloadsource,chromecfg,scrn,description,episodetitle)
 
                     if qbittorrent:
                         add_torrent(pretorrentlist, chromecfg,qbitcfg,folloc)
                         print("Torrent added to Qbittorrent")
-                        time.sleep(2)
+                        time.sleep(1)
             else:
                 print("Autoupload not enabled for X")
