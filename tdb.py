@@ -859,8 +859,11 @@ def createtorrent(folloc, selection, cfg):
         imdbnum, imdbtitle, imdbyear, tmdbnum, tmdb_desc, tmdb_type = "1","None","1", "1", "none", "none"
         print("skipping use of TMDB/IMDB. To enable imdb/tmdb please add a tmdb config variable")
 
-    print(f"IMDB: {imdbnum}\nTMDB: {tmdbnum}\nTVDB: {tvdbnum[0]}")
-
+    try:
+        print(f"IMDB: {imdbnum}\nTMDB: {tmdbnum}\nTVDB: {tvdbdata[0]}")
+    except:
+        print("error in imdb/tmdb/tvdb")
+        
     if len(torrentname) >80:
         shortdirectory = torrentname[:80]
     else:
