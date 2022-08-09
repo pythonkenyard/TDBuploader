@@ -172,7 +172,7 @@ class tdb(tracker):
         #description
         try:
             text_field = driver.find_element(By.XPATH, "//*[@class='wysibb-text-editor wysibb-body']")
-            pc.copy(f"{description}\n\n Issues or problems please pm me.")
+            pc.copy(f"{description}\n\n Upload supported by TDBuploader")
             text_field.send_keys(Keys.CONTROL, 'v')
             print("pasted media info")
         except:
