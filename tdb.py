@@ -990,11 +990,12 @@ def createtorrent(folloc, selection, cfg):
 
     #Add some media info to torrent posting if doing so
 
-    if tmdb_type == "tv":
-        description = f"TMDB\n[url=https://www.themoviedb.org/tv/{tmdbnum}]TMDB LINK[/url]\n\n{tmdb_desc}"
-    elif tmdb_type == "movie":
-        description = f"TMDB\n[url=https://www.themoviedb.org/movie/{tmdbnum}]TMDB LINK[/url]\n\n{tmdb_desc}"
-    else:
+    try:
+        if tmdb_type == "tv":
+            description = f"TMDB\n[url=https://www.themoviedb.org/tv/{tmdbnum}]TMDB LINK[/url]\n\n{tmdb_desc}"
+        elif tmdb_type == "movie":
+            description = f"TMDB\n[url=https://www.themoviedb.org/movie/{tmdbnum}]TMDB LINK[/url]\n\n{tmdb_desc}"
+    except:
         print("no tmdb info")
         description = " "
     try:
