@@ -19,7 +19,7 @@ print("\n\
     |_|  |_____/|____/ \\__,_| .__/|_|\\___/ \\__,_|\\__,_|\\___|_|\n\
                             | |\n\
                             |_|")
-print("\nVersion 2.6.4 Beta,\nNote it is suggested to use latest stable release.\nhttps://github.com/pythonkenyard/TDBuploader ")
+print("\nVersion 2.6.5 Stable,\nNote it is suggested to use latest stable release.\nhttps://github.com/pythonkenyard/TDBuploader.")
 
 def initial_setup(cfg):
 
