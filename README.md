@@ -2,7 +2,7 @@
 -TorrentDB   
 -BeyondHD   
     
-#Status update 2022.07.21: lots of nice optomisations pushed
+#Status update 2022.08.08: small patches for recent updates related to tmdb.
    
 # TDBuploader  
 Script for creation of torrents, for your tracker, which also creates text file with mediainfo, screenshots and mediainfo ready for uploading.  
