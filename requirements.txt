@@ -8,4 +8,5 @@ pymediainfo
 pyperclip
 guessit
 cinemagoer
+webdriver-auto-update
 git+https://github.com/rndusr/torf-cli.git
