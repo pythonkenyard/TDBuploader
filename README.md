@@ -10,15 +10,13 @@ Supports mass creation of torrents from folders or a folder of files.
 Can autoupload to BHD and TDB.
 Note: Autoupload requires chrome support and chromedriver matching your chrome version from here https://chromedriver.chromium.org/downloads
 
-# Instructions:
+# Installation Instructions:
 ## On windows:  
+Download and install mediainfo - https://mediaarea.net/en/MediaInfo/Download
 Download https://github.com/pythonkenyard/TDBuploader/archive/refs/heads/main.zip  
 Unzip and open the folder you created.  
 in the explorer bar at the top of folder type "powershell" or "cmd" to open a powershell or cmd window for this folder    
 If you have already installed python and pip skip to Install python requirements.  
-
-You also need mediainfo
-https://mediaarea.net/en/MediaInfo
 
 
 ### Installing Python  
