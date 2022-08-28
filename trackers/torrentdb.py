@@ -304,7 +304,7 @@ class tdb(tracker):
         except:
             try:
                 print("No season episode detected")
-                if len(seasonmatch[1])>0:
+                if len(seasonmatch[1])>0 and seasonmatch[1] != " ":
                     print("assigning season title")
                     try:
                         torrent_title = f"{short_title} S{seasonmatch[1]} {self.resolution} {downloadsource_videosource} {self.format} {self.audioformat}{self.releasegrp}"
@@ -312,12 +312,14 @@ class tdb(tracker):
 
                     except:
                         error = error + ",title"
+                else:
+                    raise
             #MOVIE TITLE
             except:
                 print("assigning movie standard title")
                 try:
-                    torrent_title = f"{short_title} {self.resolution} {downloadsource_videosource} {self.format} {self.audioformat}{self.releasegrp}"
-                    print(f"Assigned title {short_title} {self.resolution} {downloadsource_videosource} {self.format} {self.audioformat}{self.releasegrp}")
+                    torrent_title = f"{short_title} {self.year} {self.resolution} {downloadsource_videosource} {self.format} {self.audioformat}{self.releasegrp}"
+                    print(f"Assigned title {short_title} {self.year} {self.resolution} {downloadsource_videosource} {self.format} {self.audioformat}{self.releasegrp}")
 
                 except:
                     error = error + ",title"
