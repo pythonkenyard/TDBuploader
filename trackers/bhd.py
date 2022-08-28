@@ -70,7 +70,7 @@ class bhd(tracker):
             category_id = "1"
 
             try:
-                name = f"{short_title} {self.resolution} {downloadsource_videosource} {self.audioformat} {self.format} {self.releasegrp}"
+                name = f"{short_title} {self.year} {self.resolution} {downloadsource_videosource} {self.audioformat} {self.format} {self.releasegrp}"
             except:
                 print("error on title assignment")
         return name, category_id, pack, special
