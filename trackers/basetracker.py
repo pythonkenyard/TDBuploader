@@ -47,6 +47,7 @@ class tracker():
                 print("cannot match season/episode")
                 seasonmatch = ["",""]
                 pass
+            self.year = guessedattributes["year"]
         try:
             rlsgrp = guessedattributes["release_group"]
             print(rlsgrp)
