@@ -6,6 +6,18 @@
 # **L4G has expanded support for torrentdb so this is no longer required as a functional tool**  
    https://github.com/L4GSP1KE/Upload-Assistant  
    
+     
+       
+         
+           
+             
+              
+               
+                 
+                  
+                   
+                    
+                    
 # TDBuploader  
 Script for creation of torrents, for your tracker, which also creates text file with mediainfo, screenshots and mediainfo ready for uploading.  
 Supports mass creation of torrents from folders or a folder of files.  
