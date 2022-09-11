@@ -2,7 +2,9 @@
 -TorrentDB   
 -BeyondHD   
     
-#Status update 2022.08.08: small patches for recent updates related to tmdb.
+#Status update 2022.08.11:  
+# **L4G has expanded support for torrentdb so this is no longer required as a functional tool**  
+   https://github.com/L4GSP1KE/Upload-Assistant  
    
 # TDBuploader  
 Script for creation of torrents, for your tracker, which also creates text file with mediainfo, screenshots and mediainfo ready for uploading.  
