@@ -4,7 +4,7 @@
     
 #Status update 2022.08.11:  
 # **This tool is no longer supported.    
-L4G has expanded support for torrentdb so this is no longer required as a functional tool**  
+# L4G has expanded support for torrentdb so this is no longer required as a functional tool**  
    https://github.com/L4GSP1KE/Upload-Assistant  
    
      
